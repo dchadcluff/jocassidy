@@ -2,369 +2,659 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Harper's Run - Natural AI Movement</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jo Cassidy — YA Thriller Author</title>
+    <meta name="description" content="Jo Cassidy is a YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
     <style>
-      body {
-        margin: 0;
-        background: #000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
+      :root {
+        --blood:    #9b1a2a;
+        --crimson:  #c41e3a;
+        --ember:    #e8341a;
+        --void:     #07050a;
+        --dark:     #0e0b14;
+        --surface:  #160f1e;
+        --muted:    #2a1f35;
+        --parchment:#e8e0d0;
+        --dim:      #a09080;
       }
-      #game-container {
-        border: 2px solid #00ffff55;
-        box-shadow: 0 0 20px #00ffff22;
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--void);
+        color: var(--parchment);
+        font-family: 'Crimson Pro', Georgia, serif;
+        font-size: 1.125rem;
+        line-height: 1.7;
+        overflow-x: hidden;
+      }
+
+      /* ─── NAV ─────────────────────────────────────── */
+      nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 100;
+        background: rgba(7, 5, 10, 0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid #9b1a2a33;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 48px;
+      }
+      .nav-brand {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 1.1rem;
+        color: var(--crimson);
+        text-decoration: none;
+        letter-spacing: 0.08em;
+      }
+      .nav-links {
+        display: flex;
+        gap: 36px;
+        list-style: none;
+      }
+      .nav-links a {
+        font-family: 'Cinzel', serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        transition: color 0.25s;
+        position: relative;
+      }
+      .nav-links a::after {
+        content: '';
+        position: absolute;
+        bottom: -3px; left: 0; right: 100%;
+        height: 1px;
+        background: var(--crimson);
+        transition: right 0.3s ease;
+      }
+      .nav-links a:hover { color: var(--crimson); }
+      .nav-links a:hover::after { right: 0; }
+
+      /* ─── HERO ────────────────────────────────────── */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 120px 32px 80px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 60% 50% at 50% 60%, #9b1a2a18 0%, transparent 70%),
+          radial-gradient(ellipse 40% 30% at 20% 80%, #c41e3a0d 0%, transparent 60%),
+          radial-gradient(ellipse 30% 40% at 80% 20%, #07050a 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0,0,0,0.15) 2px,
+          rgba(0,0,0,0.15) 4px
+        );
+        pointer-events: none;
+        opacity: 0.4;
+      }
+      .hero-eyebrow {
+        font-family: 'Cinzel', serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        margin-bottom: 24px;
+        animation: fadeUp 1s ease both;
+      }
+      .hero-title {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(3rem, 9vw, 7rem);
+        font-weight: 700;
+        line-height: 1.05;
+        letter-spacing: -0.01em;
+        color: var(--parchment);
+        text-shadow: 0 0 80px #9b1a2a66, 0 2px 4px #000;
+        margin-bottom: 16px;
+        animation: fadeUp 1s 0.15s ease both;
+      }
+      .hero-title span { color: var(--crimson); }
+      .hero-subtitle {
+        font-family: 'Cinzel', serif;
+        font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 48px;
+        animation: fadeUp 1s 0.3s ease both;
+      }
+      .hero-pen-name {
+        font-family: 'Crimson Pro', serif;
+        font-style: italic;
+        font-size: 1.1rem;
+        color: var(--dim);
+        margin-bottom: 64px;
+        animation: fadeUp 1s 0.45s ease both;
+      }
+      .hero-pen-name a {
+        color: var(--parchment);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-color: var(--blood);
+        transition: color 0.2s;
+      }
+      .hero-pen-name a:hover { color: var(--crimson); }
+      .hero-cta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+        animation: fadeUp 1s 0.6s ease both;
+      }
+      .btn {
+        font-family: 'Cinzel', serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 14px 36px;
+        border: 1px solid;
+        transition: all 0.3s;
+        cursor: pointer;
+        display: inline-block;
+      }
+      .btn-primary {
+        background: var(--crimson);
+        border-color: var(--crimson);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--blood);
+        border-color: var(--blood);
+        box-shadow: 0 0 24px #9b1a2a66;
+      }
+      .btn-ghost {
+        background: transparent;
+        border-color: #9b1a2a66;
+        color: var(--parchment);
+      }
+      .btn-ghost:hover {
+        border-color: var(--crimson);
+        color: var(--crimson);
+      }
+      .scroll-hint {
+        position: absolute;
+        bottom: 36px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        animation: fadeUp 1s 1.2s ease both, pulse 2s 2s ease-in-out infinite;
+      }
+      .scroll-hint span {
+        font-family: 'Cinzel', serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--blood);
+      }
+      .scroll-hint svg { color: var(--blood); }
+
+      /* ─── DIVIDER ─────────────────────────────────── */
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        max-width: 200px;
+        margin: 0 auto;
+      }
+      .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to right, transparent, var(--blood));
+      }
+      .divider::after {
+        background: linear-gradient(to left, transparent, var(--blood));
+      }
+      .divider-glyph {
+        color: var(--blood);
+        font-size: 1.2rem;
+      }
+
+      /* ─── ABOUT ───────────────────────────────────── */
+      .about {
+        padding: 100px 32px;
+        max-width: 900px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+      }
+      @media (max-width: 700px) {
+        .about { grid-template-columns: 1fr; gap: 48px; }
+      }
+      .about-text h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        margin-bottom: 20px;
+      }
+      .about-text p {
+        color: var(--parchment);
+        opacity: 0.85;
+        margin-bottom: 16px;
+      }
+      .about-deco {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sigil {
+        width: 200px;
+        height: 200px;
+        border: 1px solid #9b1a2a44;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        animation: rotateSlow 30s linear infinite;
+      }
+      .sigil::before {
+        content: '';
+        position: absolute;
+        inset: 12px;
+        border: 1px solid #9b1a2a22;
+        border-radius: 50%;
+      }
+      .sigil-inner {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 3rem;
+        color: var(--blood);
+        text-shadow: 0 0 30px #9b1a2a88;
+        animation: rotateSlow 30s linear infinite reverse;
+      }
+
+      /* ─── HARPER GAME ─────────────────────────────── */
+      .harper-section {
+        background: var(--dark);
+        border-top: 1px solid #9b1a2a22;
+        border-bottom: 1px solid #9b1a2a22;
+        position: relative;
+        overflow: hidden;
+      }
+      .harper-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse 80% 60% at 50% 50%, #9b1a2a0a 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .harper-inner {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 100px 32px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+      }
+      @media (max-width: 700px) {
+        .harper-inner { grid-template-columns: 1fr; gap: 48px; }
+      }
+      .harper-content h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        margin-bottom: 16px;
+      }
+      .harper-content h3 {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        color: var(--parchment);
+        margin-bottom: 24px;
+        line-height: 1.2;
+      }
+      .harper-content p {
+        color: var(--parchment);
+        opacity: 0.8;
+        margin-bottom: 24px;
+        font-size: 1.05rem;
+      }
+      .harper-visual {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .game-preview-card {
+        background: #000;
+        border: 1px solid #00ffff22;
+        box-shadow: 0 0 40px #00ffff0d, 0 0 80px #9b1a2a1a;
+        padding: 24px;
+        width: 100%;
+        max-width: 380px;
+        text-align: center;
+        position: relative;
+      }
+      .game-preview-card::before {
+        content: 'ALPHA';
+        position: absolute;
+        top: 12px; right: 12px;
+        font-family: 'Cinzel', serif;
+        font-size: 0.55rem;
+        letter-spacing: 0.2em;
+        color: var(--blood);
+        border: 1px solid var(--blood);
+        padding: 2px 6px;
+      }
+      .game-preview-pixel {
+        background: linear-gradient(135deg, #0a1a2a 0%, #0a0a1a 50%, #1a0a0a 100%);
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        border: 1px solid #00ffff11;
+        position: relative;
+        overflow: hidden;
+      }
+      .pixel-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(#00ffff06 1px, transparent 1px),
+          linear-gradient(90deg, #00ffff06 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      .pixel-figure {
+        font-size: 2.5rem;
+        position: relative;
+        z-index: 1;
+        animation: run 0.6s steps(2) infinite;
+        filter: drop-shadow(0 0 8px #00ffff88);
+      }
+      .game-preview-card h4 {
+        font-family: 'Cinzel', serif;
+        font-size: 0.85rem;
+        letter-spacing: 0.15em;
+        color: #00ffff;
+        margin-bottom: 8px;
+      }
+      .game-preview-card p {
+        font-size: 0.85rem;
+        color: var(--dim);
+        margin-bottom: 20px;
+      }
+
+      /* ─── BOOKS ───────────────────────────────────── */
+      .books-section {
+        padding: 100px 32px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .section-header {
+        text-align: center;
+        margin-bottom: 64px;
+      }
+      .section-header h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        margin-bottom: 16px;
+      }
+      .section-header h3 {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(1.6rem, 4vw, 2.4rem);
+        color: var(--parchment);
+        line-height: 1.2;
+      }
+      .books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2px;
+        margin-bottom: 48px;
+      }
+      .book-card {
+        background: var(--surface);
+        padding: 40px 32px;
+        position: relative;
+        transition: background 0.3s;
+        border: 1px solid #9b1a2a11;
+      }
+      .book-card:hover { background: var(--muted); }
+      .book-genre {
+        font-family: 'Cinzel', serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        margin-bottom: 12px;
+      }
+      .book-card h4 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.4rem;
+        color: var(--parchment);
+        margin-bottom: 16px;
+        line-height: 1.2;
+      }
+      .book-card p {
+        font-size: 0.95rem;
+        color: var(--dim);
+        line-height: 1.65;
+      }
+      .book-card-foot {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(to right, transparent, var(--blood), transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .book-card:hover .book-card-foot { opacity: 1; }
+      .books-cta {
+        text-align: center;
+      }
+      .books-cta p {
+        font-style: italic;
+        color: var(--dim);
+        margin-bottom: 24px;
+      }
+
+      /* ─── FOOTER ──────────────────────────────────── */
+      footer {
+        border-top: 1px solid #9b1a2a22;
+        padding: 48px 32px;
+        text-align: center;
+      }
+      footer .footer-brand {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 1.4rem;
+        color: var(--blood);
+        margin-bottom: 16px;
+      }
+      footer p {
+        font-size: 0.85rem;
+        color: var(--blood);
+        opacity: 0.6;
+      }
+      footer a {
+        color: var(--dim);
+        text-decoration: none;
+      }
+      footer a:hover { color: var(--parchment); }
+
+      /* ─── ANIMATIONS ──────────────────────────────── */
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.5; }
+        50%       { opacity: 1; }
+      }
+      @keyframes rotateSlow {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      @keyframes run {
+        0%   { transform: translateX(-4px); }
+        100% { transform: translateX(4px); }
+      }
+      @keyframes flicker {
+        0%, 95%, 100% { opacity: 1; }
+        96%, 99%      { opacity: 0.4; }
       }
     </style>
   </head>
   <body>
-    <div id="game-container"></div>
-    <script>
-      const config = {
-        type: Phaser.AUTO,
-        width: 800,
-        height: 450,
-        parent: "game-container",
-        physics: {
-          default: "arcade",
-          arcade: { gravity: { y: 1200 }, debug: false },
-        },
-        scene: { preload: preload, create: create, update: update },
-      };
 
-      const game = new Phaser.Game(config);
-      let player,
-        platforms,
-        ledgePlatforms,
-        enemies = [];
-      let points = 0,
-        lastHitTime = 0,
-        pointsText,
-        distanceText;
-      let akiroBuilding,
-        akiroWindow,
-        goalReached = false;
+    <!-- NAV -->
+    <nav>
+      <a href="index.html" class="nav-brand">Jo Cassidy</a>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#harper">Harper</a></li>
+        <li><a href="#books">Books</a></li>
+        <li><a href="play.html">Play</a></li>
+      </ul>
+    </nav>
 
-      const playerWalkSpeed = 120;
-      const levelLength = 5000;
-      const levelWorldWidth = 6000;
-      let speedScale = 1;
+    <!-- HERO -->
+    <section class="hero">
+      <p class="hero-eyebrow">YA Thriller Author</p>
+      <h1 class="hero-title">Jo <span>Cassidy</span></h1>
+      <p class="hero-subtitle">Paranormal &nbsp;·&nbsp; Psychological &nbsp;·&nbsp; Contemporary</p>
+      <p class="hero-pen-name">
+        Pen name for <a href="https://sarajocluff.com" target="_blank" rel="noopener">Sara Jo Cluff</a>
+      </p>
+      <div class="hero-cta">
+        <a href="#books" class="btn btn-primary">Browse Books</a>
+        <a href="play.html" class="btn btn-ghost">Play as Harper</a>
+      </div>
+      <div class="scroll-hint">
+        <span>Scroll</span>
+        <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+          <path d="M8 1v14M2 10l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </section>
 
-      function preload() {
-        this.load.image("sky", "assets/layer_sky_3200.png");
-        this.load.image("houses", "assets/layer_midground_1024.png");
-        this.load.image("street", "assets/layer_foreground_1024.png");
-        this.load.spritesheet("harper", "sprites/harper/harper.png", {
-          frameWidth: 242,
-          frameHeight: 367,
-        });
-        this.load.spritesheet(
-          "enforcer",
-          "sprites/others/security-enforcer.png",
-          { frameWidth: 352, frameHeight: 512 },
-        );
-        this.load.image("akiro-window", "assets/akiro-window-128.png");
-        this.load.image("akiro-building", "assets/akiro-building-150.png");
-      }
+    <!-- ABOUT -->
+    <section id="about" style="padding: 20px 0 0;">
+      <div class="divider"><span class="divider-glyph">✦</span></div>
+    </section>
+    <section>
+      <div class="about">
+        <div class="about-text">
+          <h2>About</h2>
+          <p>Hi, I'm Jo Cassidy — a YA thriller author who loves all things creepy. <em>Bates Motel. Stranger Things. Criminal Minds. Prodigal Son.</em> These are a few of my favorite things.</p>
+          <p>My thrillers span paranormal, psychological, and contemporary — stories designed to keep you up past midnight with the lights on.</p>
+          <p>I grew up in Yorba Linda, California, and now live in Utah with my husband and our very suspicious cats.</p>
+          <p style="margin-top:24px; font-size:0.95rem; color:var(--dim); font-style:italic;">
+            Jo Cassidy is the pen name of
+            <a href="https://sarajocluff.com" target="_blank" rel="noopener"
+               style="color:var(--parchment); text-decoration:underline; text-underline-offset:3px; text-decoration-color:var(--blood);">Sara Jo Cluff</a>.
+          </p>
+        </div>
+        <div class="about-deco">
+          <div class="sigil">
+            <span class="sigil-inner">JC</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      function create() {
-        let graphics = this.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0xffffff, 1);
-        graphics.fillRect(0, 0, 32, 32);
-        graphics.generateTexture("ground", 32, 32);
+    <!-- HARPER GAME -->
+    <section id="harper" class="harper-section">
+      <div class="harper-inner">
+        <div class="harper-content">
+          <h2>Now Playable</h2>
+          <h3>Harper's Run</h3>
+          <p>Harper is one of Jo's most beloved series — a YA vigilante thriller set in the chaotic United States of 2098, where sixteen-year-old Harper Chandler runs covert missions for Dogwood Protection Services.</p>
+          <p>Now you can step into Harper's shoes. Run. Evade. Survive. The streets of San Diego won't patrol themselves.</p>
+          <p style="font-size:0.85rem; color:var(--blood); font-style:italic;">⚠ Currently in alpha — very much a work in progress.</p>
+          <a href="play.html" class="btn btn-primary" style="margin-top:8px;">Play Now</a>
+        </div>
+        <div class="harper-visual">
+          <div class="game-preview-card">
+            <div class="game-preview-pixel">
+              <div class="pixel-grid"></div>
+              <span class="pixel-figure">🏃‍♀️</span>
+            </div>
+            <h4>Harper's Run</h4>
+            <p>A DPS field operative game</p>
+            <a href="play.html" class="btn btn-primary" style="width:100%; text-align:center; font-size:0.7rem;">Launch Game →</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        this.sky = this.add
-          .tileSprite(400, 225, 800, 450, "sky")
-          .setDepth(0)
-          .setScrollFactor(0);
-        this.houses = this.add
-          .tileSprite(400, 320, 1818, 1024, "houses")
-          .setOrigin(0.5, 1)
-          .setDepth(1)
-          .setScale(0.44)
-          .setScrollFactor(0);
-        this.street = this.add
-          .tileSprite(400, 450, 1818, 1024, "street")
-          .setOrigin(0.5, 1)
-          .setDepth(2)
-          .setScale(0.44)
-          .setScrollFactor(0);
+    <!-- BOOKS -->
+    <section id="books" class="books-section">
+      <div class="section-header">
+        <h2>The Books</h2>
+        <h3>Stories That Won't Let Go</h3>
+      </div>
+      <div class="books-grid">
+        <div class="book-card">
+          <p class="book-genre">Vigilante Thriller</p>
+          <h4>Harper</h4>
+          <p>After the war of 2098, sixteen-year-old Harper Chandler works covert missions for Dogwood Protection Services — stopping terrorists before they strike, all while keeping her double life hidden from a boy she can't stop thinking about.</p>
+          <div class="book-card-foot"></div>
+        </div>
+        <div class="book-card">
+          <p class="book-genre">Psychological Thriller</p>
+          <h4>Good Girls Stay Quiet</h4>
+          <p>Fifteen-year-old Cora Snow has a secret only her journal knows. When the journal goes missing, she's forced to break every rule she's ever lived by — or risk everything she's been surviving for.</p>
+          <div class="book-card-foot"></div>
+        </div>
+        <div class="book-card">
+          <p class="book-genre">Paranormal Thriller</p>
+          <h4>Willow Marsh</h4>
+          <p>Tessa tried to contact her dead mother through a séance. Something else answered. Now she's in a town full of liars, torn between two boys, and losing control of a voice inside her that grows darker by the day.</p>
+          <div class="book-card-foot"></div>
+        </div>
+      </div>
+      <div class="books-cta">
+        <p>Find all of Jo's books on Sara Jo Cluff's author page</p>
+        <a href="https://sarajocluff.com" target="_blank" rel="noopener" class="btn btn-primary">Visit sarajocluff.com →</a>
+      </div>
+    </section>
 
-        this.physics.world.setBounds(0, 0, levelWorldWidth, 450);
-        this.cameras.main.setBounds(0, 0, levelWorldWidth, 450);
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-brand">Jo Cassidy</div>
+      <p>Pen name of <a href="https://sarajocluff.com" target="_blank" rel="noopener">Sara Jo Cluff</a> &nbsp;·&nbsp; YA Thrillers</p>
+    </footer>
 
-        platforms = this.physics.add.staticGroup();
-        platforms
-          .create(levelWorldWidth / 2, 440, "ground")
-          .setScale(Math.ceil(levelWorldWidth / 32) + 2, 1)
-          .refreshBody()
-          .setVisible(false);
-        ledgePlatforms = this.physics.add.staticGroup();
-
-        player = this.physics.add
-          .sprite(150, 100, "harper")
-          .setDepth(100)
-          .setScale(0.35);
-        player.setOrigin(0.5, 1);
-        player.body.setSize(100, 280).setOffset(71, 85);
-        player.setCollideWorldBounds(true);
-
-        this.cameras.main.startFollow(player, true, 1, 1, -200, 0);
-
-        this.anims.create({
-          key: "run",
-          frames: this.anims.generateFrameNumbers("harper", {
-            start: 8,
-            end: 15,
-          }),
-          frameRate: 8,
-          repeat: -1,
-        });
-        this.anims.create({
-          key: "idle",
-          frames: this.anims.generateFrameNumbers("harper", {
-            start: 0,
-            end: 4,
-          }),
-          frameRate: 6,
-          repeat: -1,
-        });
-        this.anims.create({
-          key: "enforcer-walk",
-          frames: this.anims.generateFrameNumbers("enforcer", {
-            start: 8,
-            end: 15,
-          }),
-          frameRate: 6,
-          repeat: -1,
-        });
-        this.anims.create({
-          key: "enforcer-idle",
-          frames: this.anims.generateFrameNumbers("enforcer", {
-            start: 0,
-            end: 3,
-          }),
-          frameRate: 4,
-          repeat: -1,
-        });
-
-        pointsText = this.add
-          .text(20, 20, "DECRYPTION SCORE: 0", {
-            fontSize: "18px",
-            fill: "#00ff00",
-            fontFamily: "Courier New",
-          })
-          .setDepth(1000)
-          .setScrollFactor(0);
-        distanceText = this.add
-          .text(20, 50, "INTEL SYNC: 0%", {
-            fontSize: "18px",
-            fill: "#00ffff",
-            fontFamily: "Courier New",
-          })
-          .setDepth(1000)
-          .setScrollFactor(0);
-
-        this.physics.add.collider(player, platforms);
-        this.cursors = this.input.keyboard.createCursorKeys();
-
-        spawnEnemy(this, 2000);
-
-        const goalX = levelLength;
-        akiroBuilding = this.add
-          .image(goalX, 424, "akiro-building")
-          .setOrigin(0.5, 1)
-          .setDepth(2.1)
-          .setScale(1.2);
-        let ledge = ledgePlatforms
-          .create(goalX, 280, "ground")
-          .setScale(8, 0.5)
-          .refreshBody()
-          .setVisible(false);
-        ledge.body.checkCollision.down = false;
-        this.physics.add.collider(player, ledgePlatforms);
-        akiroWindow = this.physics.add
-          .sprite(goalX, 180, "akiro-window")
-          .setDepth(2.2)
-          .setScale(0.6);
-        akiroWindow.body.allowGravity = false;
-        this.physics.add.overlap(player, akiroWindow, winLevel, null, this);
-      }
-
-      function spawnEnemy(scene, worldX) {
-        const guard = scene.physics.add
-          .sprite(worldX, 424, "enforcer")
-          .setDepth(150)
-          .setScale(0.25);
-        guard.setOrigin(0.5, 1);
-        guard.body.allowGravity = false;
-        guard.body.setSize(180, 480).setOffset(86, 15);
-        guard.anims.play("enforcer-walk");
-
-        const beam = scene.add.graphics().setDepth(151);
-        const zone = scene.add.rectangle(worldX, 350, 120, 40, 0xff0000, 0);
-        scene.physics.add.existing(zone, true);
-
-        enemies.push({
-          graphic: guard,
-          beam: beam,
-          zone: zone,
-          spawnX: worldX,
-          direction: 1,
-          patrolWidth: 150,
-          pauseUntil: 0,
-        });
-
-        scene.physics.add.overlap(player, zone, () => {
-          if (scene.time.now - lastHitTime > 1000) {
-            points -= 10;
-            lastHitTime = scene.time.now;
-            pointsText.setText(`DECRYPTION SCORE: ${points}`);
-            player.setTint(0xff0000);
-            scene.time.delayedCall(200, () => player.clearTint());
-          }
-        });
-      }
-
-      function update() {
-        if (goalReached) return;
-
-        let targetScale = 2.5;
-        const slowdownDist = 900;
-        const fullSlowDist = 400;
-        enemies.forEach((e) => {
-          const dist = Math.abs(e.graphic.x - player.x);
-          if (dist < slowdownDist) {
-            const t = Math.max(
-              0,
-              (dist - fullSlowDist) / (slowdownDist - fullSlowDist),
-            );
-            targetScale = Math.min(targetScale, 1.0 + t * 1.5);
-          }
-        });
-        speedScale += (targetScale - speedScale) * 0.08;
-
-        if (this.cursors.left.isDown) {
-          player.setVelocityX(-playerWalkSpeed * speedScale);
-          player.setFlipX(true);
-        } else if (this.cursors.right.isDown) {
-          player.setVelocityX(playerWalkSpeed * speedScale);
-          player.setFlipX(false);
-        } else {
-          player.setVelocityX(0);
-        }
-
-        if (this.cursors.up.isDown && player.body.blocked.down) {
-          player.setVelocityY(-600);
-        }
-
-        if (player.body.velocity.x !== 0 && player.body.blocked.down) {
-          player.anims.play("run", true);
-          player.anims.timeScale = speedScale;
-        } else if (player.body.blocked.down) {
-          player.anims.play("idle", true);
-          player.anims.timeScale = 1;
-        }
-
-        let progress = Math.min(
-          100,
-          Math.floor((player.x / levelLength) * 100),
-        );
-        distanceText.setText(`INTEL SYNC: ${progress}%`);
-        // Add this inside your update loop where you update progress
-        if (speedScale < 1.5) {
-          distanceText.setAlpha(0.5 + Math.random() * 0.5); // Flickers when slowed down near guards
-          distanceText.setText(`INTEL SYNC: ${progress}% [INTERFERENCE]`);
-        } else {
-          distanceText.setAlpha(1);
-          distanceText.setText(`INTEL SYNC: ${progress}%`);
-        }
-
-        const camX = this.cameras.main.scrollX;
-        this.sky.tilePositionX = camX * 0.25;
-        this.houses.tilePositionX = camX * 1.9;
-        this.street.tilePositionX = camX * 2.27;
-
-        const now = this.time.now;
-
-        enemies.forEach((e) => {
-          const walkingTowardHarper =
-            e.graphic.x > player.x && e.direction === -1;
-          const guardInternalSpeed = walkingTowardHarper ? 0.6 : 1.6;
-
-          if (e.pauseUntil > 0) {
-            if (now >= e.pauseUntil) {
-              e.direction *= -1;
-              e.pauseUntil = 0;
-              e.graphic.anims.play("enforcer-walk", true);
-            }
-          } else {
-            e.graphic.x += e.direction * guardInternalSpeed;
-            e.graphic.anims.timeScale = walkingTowardHarper ? 0.4 : 1;
-
-            if (
-              e.graphic.x > e.spawnX + e.patrolWidth ||
-              e.graphic.x < e.spawnX - e.patrolWidth
-            ) {
-              e.graphic.x = Math.max(
-                e.spawnX - e.patrolWidth,
-                Math.min(e.graphic.x, e.spawnX + e.patrolWidth),
-              );
-              e.pauseUntil = now + 2000;
-              e.graphic.anims.play("enforcer-idle", true);
-            }
-          }
-
-          e.graphic.setFlipX(e.direction === -1);
-
-          e.beam.clear();
-          e.beam.fillStyle(0xff0000, 0.2);
-          const dir = e.direction;
-          const eyeY = e.graphic.y - 100;
-
-          e.beam.beginPath();
-          e.beam.moveTo(e.graphic.x, eyeY);
-          e.beam.lineTo(e.graphic.x + dir * 220, eyeY + 60);
-          e.beam.lineTo(e.graphic.x + dir * 220, eyeY - 60);
-          e.beam.fillPath();
-
-          e.zone.x = e.graphic.x + dir * 140;
-          e.zone.y = eyeY;
-          e.zone.body.updateFromGameObject();
-        });
-      }
-
-      function winLevel() {
-        goalReached = true;
-        player.setVelocity(0);
-        player.anims.play("idle");
-        this.add
-          .rectangle(400, 225, 800, 450, 0x000000, 0.7)
-          .setDepth(2000)
-          .setScrollFactor(0);
-        this.add
-          .text(400, 180, "MISSION SUCCESS", {
-            fontSize: "42px",
-            fill: "#00ffff",
-            fontFamily: "Courier New",
-          })
-          .setOrigin(0.5)
-          .setDepth(2001)
-          .setScrollFactor(0);
-        this.add
-          .text(400, 300, "Press R to Restart", {
-            fontSize: "18px",
-            fill: "#ffffff",
-          })
-          .setOrigin(0.5)
-          .setDepth(2001)
-          .setScrollFactor(0);
-        this.input.keyboard.once("keydown-R", () => {
-          location.reload();
-        });
-      }
-    </script>
   </body>
 </html>

@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Books — Jo Cassidy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --blood:    #9b1a2a;
+        --crimson:  #c41e3a;
+        --void:     #07050a;
+        --dark:     #0e0b14;
+        --surface:  #160f1e;
+        --muted:    #2a1f35;
+        --parchment:#e8e0d0;
+        --dim:      #a09080;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        background: var(--void);
+        color: var(--parchment);
+        font-family: 'Crimson Pro', Georgia, serif;
+        font-size: 1.125rem;
+        line-height: 1.7;
+        overflow-x: hidden;
+      }
+      nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 100;
+        background: rgba(7, 5, 10, 0.95);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid #9b1a2a33;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 48px;
+      }
+      .nav-brand {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 1.1rem;
+        color: var(--crimson);
+        text-decoration: none;
+        letter-spacing: 0.08em;
+      }
+      .nav-links {
+        display: flex;
+        gap: 36px;
+        list-style: none;
+      }
+      .nav-links a {
+        font-family: 'Cinzel', serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        transition: color 0.25s;
+      }
+      .nav-links a:hover, .nav-links a.active { color: var(--crimson); }
+
+      .page-hero {
+        min-height: 38vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 120px 32px 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 1px solid #9b1a2a22;
+      }
+      .page-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse 60% 80% at 50% 100%, #9b1a2a14 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .page-hero-eyebrow {
+        font-family: 'Cinzel', serif;
+        font-size: 0.65rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        margin-bottom: 16px;
+      }
+      .page-hero h1 {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        color: var(--parchment);
+        line-height: 1.1;
+      }
+
+      .books-main {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 80px 32px 120px;
+      }
+
+      .genre-section {
+        margin-bottom: 80px;
+      }
+      .genre-label {
+        font-family: 'Cinzel', serif;
+        font-size: 0.65rem;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: var(--blood);
+        padding-bottom: 12px;
+        border-bottom: 1px solid #9b1a2a33;
+        margin-bottom: 40px;
+      }
+
+      .book-entry {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 48px;
+        align-items: start;
+        padding: 40px 0;
+        border-bottom: 1px solid #9b1a2a11;
+      }
+      .book-entry:last-child { border-bottom: none; }
+      @media (max-width: 600px) {
+        .book-entry { grid-template-columns: 1fr; gap: 24px; }
+        .book-number { display: none; }
+      }
+      .book-number {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 4rem;
+        color: #9b1a2a18;
+        line-height: 1;
+        min-width: 60px;
+        text-align: right;
+        user-select: none;
+      }
+      .book-info h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.6rem;
+        color: var(--parchment);
+        margin-bottom: 8px;
+        line-height: 1.2;
+      }
+      .book-tagline {
+        font-style: italic;
+        color: var(--crimson);
+        font-size: 1rem;
+        margin-bottom: 16px;
+      }
+      .book-info p {
+        color: var(--parchment);
+        opacity: 0.8;
+        margin-bottom: 20px;
+        font-size: 1rem;
+      }
+      .book-link {
+        font-family: 'Cinzel', serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        border-bottom: 1px solid var(--blood);
+        padding-bottom: 2px;
+        transition: color 0.2s, border-color 0.2s;
+      }
+      .book-link:hover { color: var(--crimson); border-color: var(--crimson); }
+
+      .all-books-cta {
+        background: var(--surface);
+        border: 1px solid #9b1a2a22;
+        padding: 60px 40px;
+        text-align: center;
+        margin-top: 40px;
+        position: relative;
+        overflow: hidden;
+      }
+      .all-books-cta::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse 60% 80% at 50% 50%, #9b1a2a08 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .all-books-cta h3 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.1rem;
+        color: var(--parchment);
+        margin-bottom: 12px;
+        letter-spacing: 0.05em;
+      }
+      .all-books-cta p {
+        color: var(--dim);
+        font-style: italic;
+        margin-bottom: 32px;
+      }
+      .btn {
+        font-family: 'Cinzel', serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 14px 36px;
+        border: 1px solid;
+        transition: all 0.3s;
+        display: inline-block;
+      }
+      .btn-primary {
+        background: var(--crimson);
+        border-color: var(--crimson);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--blood);
+        border-color: var(--blood);
+        box-shadow: 0 0 24px #9b1a2a44;
+      }
+
+      footer {
+        border-top: 1px solid #9b1a2a22;
+        padding: 40px 32px;
+        text-align: center;
+      }
+      footer .footer-brand {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 1.2rem;
+        color: var(--blood);
+        margin-bottom: 12px;
+      }
+      footer p { font-size: 0.85rem; color: var(--blood); opacity: 0.6; }
+      footer a { color: var(--dim); text-decoration: none; }
+      footer a:hover { color: var(--parchment); }
+    </style>
+  </head>
+  <body>
+
+    <nav>
+      <a href="index.html" class="nav-brand">Jo Cassidy</a>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#harper">Harper</a></li>
+        <li><a href="books.html" class="active">Books</a></li>
+        <li><a href="play.html">Play</a></li>
+      </ul>
+    </nav>
+
+    <section class="page-hero">
+      <p class="page-hero-eyebrow">Jo Cassidy</p>
+      <h1>The Books</h1>
+    </section>
+
+    <main class="books-main">
+
+      <div class="genre-section">
+        <p class="genre-label">Vigilante Thriller</p>
+        <div class="book-entry">
+          <div class="book-number">1</div>
+          <div class="book-info">
+            <h2>Harper</h2>
+            <p class="book-tagline">For fans of Batman and Marie Lu.</p>
+            <p>After the war of 2098, the United States is a chaotic mess. Terrorism abounds, and the government isn't doing a very good job of keeping the people safe. Dogwood Protection Services takes matters into their own hands.</p>
+            <p>Sixteen-year-old Harper Chandler is one of DPS's biggest assets. She's small, nimble, cunning, and willing to break a few laws to stop an attack — like breaking into a classmate's house where he catches her, almost blowing the vigilante operation wide open.</p>
+            <p>As she and Akiro grow closer, Harper must continue to spy on his father, work a stalker case for the most powerful woman in San Diego, and keep her double life from unraveling. If she can't piece it all together in time, lives — and her relationship with Akiro — will be lost.</p>
+            <a href="https://www.amazon.com/Harper-Jo-Cassidy-ebook/dp/B07TN7BF1R/" target="_blank" rel="noopener" class="book-link">Buy on Amazon →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="genre-section">
+        <p class="genre-label">Psychological Thriller</p>
+        <div class="book-entry">
+          <div class="book-number">1</div>
+          <div class="book-info">
+            <h2>Good Girls Stay Quiet</h2>
+            <p class="book-tagline">There's safety in silence…</p>
+            <p>Fifteen-year-old Cora Snow has a secret only her "Daddy" and her journal know about. Aside from Daddy, the only people Cora talks to are her teachers and imaginary friends. She obeys all of Daddy's commands to keep him happy — and herself alive.</p>
+            <p>She's content in her bubble until one day her journal goes missing at school. To keep her secret, Cora is forced to befriend the students most likely behind the theft. Soon, threats appear — blackmailing her for test answers and money in exchange for the journal.</p>
+            <p>If Cora can't track down the blackmailer and destroy the journal, Daddy will get sent to jail — and if he has time, send Cora six feet under.</p>
+            <a href="https://www.amazon.com/Good-Girls-Stay-Quiet-Cassidy-ebook/dp/B07FDZL9MF/" target="_blank" rel="noopener" class="book-link">Buy on Amazon →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="genre-section">
+        <p class="genre-label">Paranormal Thriller</p>
+        <div class="book-entry">
+          <div class="book-number">1</div>
+          <div class="book-info">
+            <h2>Willow Marsh</h2>
+            <p class="book-tagline">Death stains her hands.</p>
+            <p>Tessa yearns for closure with her mom and brother after they are killed in a tragic accident, so she tries to contact them on the other side. But when Tessa performs a séance outside her new home in Willow Marsh, some otherworldly passengers slip through the gateway.</p>
+            <p>Her inner voice grows dark and desperately tries to latch on to the sheriff's son, to the point where Tessa could completely lose control. Everyone in Willow Marsh is lying, and the anxiety of renegade spirits, a powerful voice inside her head, and guilt over her family's deaths start to consume her — breaking her down, piece by piece.</p>
+            <a href="https://www.amazon.com/Willow-Marsh-Jo-Cassidy-ebook/dp/B07FK8VMXH/" target="_blank" rel="noopener" class="book-link">Buy on Amazon →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="all-books-cta">
+        <h3>Looking for more?</h3>
+        <p>Find the full catalog and latest releases on Sara Jo Cluff's author page.</p>
+        <a href="https://sarajocluff.com" target="_blank" rel="noopener" class="btn btn-primary">Visit sarajocluff.com →</a>
+      </div>
+
+    </main>
+
+    <footer>
+      <div class="footer-brand">Jo Cassidy</div>
+      <p>Pen name of <a href="https://sarajocluff.com" target="_blank" rel="noopener">Sara Jo Cluff</a> &nbsp;·&nbsp; YA Thrillers</p>
+    </footer>
+
+  </body>
+</html>
