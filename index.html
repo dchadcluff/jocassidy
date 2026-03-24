@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Harper's Run - Natural AI Movement</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      #game-container {
+        border: 2px solid #00ffff55;
+        box-shadow: 0 0 20px #00ffff22;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container"></div>
+    <script>
+      const config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 450,
+        parent: "game-container",
+        physics: {
+          default: "arcade",
+          arcade: { gravity: { y: 1200 }, debug: false },
+        },
+        scene: { preload: preload, create: create, update: update },
+      };
+
+      const game = new Phaser.Game(config);
+      let player,
+        platforms,
+        ledgePlatforms,
+        enemies = [];
+      let points = 0,
+        lastHitTime = 0,
+        pointsText,
+        distanceText;
+      let akiroBuilding,
+        akiroWindow,
+        goalReached = false;
+
+      const playerWalkSpeed = 120;
+      const levelLength = 5000;
+      const levelWorldWidth = 6000;
+      let speedScale = 1;
+
+      function preload() {
+        this.load.image("sky", "assets/layer_sky_3200.png");
+        this.load.image("houses", "assets/layer_midground_1024.png");
+        this.load.image("street", "assets/layer_foreground_1024.png");
+        this.load.spritesheet("harper", "sprites/harper/harper.png", {
+          frameWidth: 242,
+          frameHeight: 367,
+        });
+        this.load.spritesheet(
+          "enforcer",
+          "sprites/others/security-enforcer.png",
+          { frameWidth: 352, frameHeight: 512 },
+        );
+        this.load.image("akiro-window", "assets/akiro-window-128.png");
+        this.load.image("akiro-building", "assets/akiro-building-150.png");
+      }
+
+      function create() {
+        let graphics = this.make.graphics({ x: 0, y: 0, add: false });
+        graphics.fillStyle(0xffffff, 1);
+        graphics.fillRect(0, 0, 32, 32);
+        graphics.generateTexture("ground", 32, 32);
+
+        this.sky = this.add
+          .tileSprite(400, 225, 800, 450, "sky")
+          .setDepth(0)
+          .setScrollFactor(0);
+        this.houses = this.add
+          .tileSprite(400, 320, 1818, 1024, "houses")
+          .setOrigin(0.5, 1)
+          .setDepth(1)
+          .setScale(0.44)
+          .setScrollFactor(0);
+        this.street = this.add
+          .tileSprite(400, 450, 1818, 1024, "street")
+          .setOrigin(0.5, 1)
+          .setDepth(2)
+          .setScale(0.44)
+          .setScrollFactor(0);
+
+        this.physics.world.setBounds(0, 0, levelWorldWidth, 450);
+        this.cameras.main.setBounds(0, 0, levelWorldWidth, 450);
+
+        platforms = this.physics.add.staticGroup();
+        platforms
+          .create(levelWorldWidth / 2, 440, "ground")
+          .setScale(Math.ceil(levelWorldWidth / 32) + 2, 1)
+          .refreshBody()
+          .setVisible(false);
+        ledgePlatforms = this.physics.add.staticGroup();
+
+        player = this.physics.add
+          .sprite(150, 100, "harper")
+          .setDepth(100)
+          .setScale(0.35);
+        player.setOrigin(0.5, 1);
+        player.body.setSize(100, 280).setOffset(71, 85);
+        player.setCollideWorldBounds(true);
+
+        this.cameras.main.startFollow(player, true, 1, 1, -200, 0);
+
+        this.anims.create({
+          key: "run",
+          frames: this.anims.generateFrameNumbers("harper", {
+            start: 8,
+            end: 15,
+          }),
+          frameRate: 8,
+          repeat: -1,
+        });
+        this.anims.create({
+          key: "idle",
+          frames: this.anims.generateFrameNumbers("harper", {
+            start: 0,
+            end: 4,
+          }),
+          frameRate: 6,
+          repeat: -1,
+        });
+        this.anims.create({
+          key: "enforcer-walk",
+          frames: this.anims.generateFrameNumbers("enforcer", {
+            start: 8,
+            end: 15,
+          }),
+          frameRate: 6,
+          repeat: -1,
+        });
+        this.anims.create({
+          key: "enforcer-idle",
+          frames: this.anims.generateFrameNumbers("enforcer", {
+            start: 0,
+            end: 3,
+          }),
+          frameRate: 4,
+          repeat: -1,
+        });
+
+        pointsText = this.add
+          .text(20, 20, "DECRYPTION SCORE: 0", {
+            fontSize: "18px",
+            fill: "#00ff00",
+            fontFamily: "Courier New",
+          })
+          .setDepth(1000)
+          .setScrollFactor(0);
+        distanceText = this.add
+          .text(20, 50, "INTEL SYNC: 0%", {
+            fontSize: "18px",
+            fill: "#00ffff",
+            fontFamily: "Courier New",
+          })
+          .setDepth(1000)
+          .setScrollFactor(0);
+
+        this.physics.add.collider(player, platforms);
+        this.cursors = this.input.keyboard.createCursorKeys();
+
+        spawnEnemy(this, 2000);
+
+        const goalX = levelLength;
+        akiroBuilding = this.add
+          .image(goalX, 424, "akiro-building")
+          .setOrigin(0.5, 1)
+          .setDepth(2.1)
+          .setScale(1.2);
+        let ledge = ledgePlatforms
+          .create(goalX, 280, "ground")
+          .setScale(8, 0.5)
+          .refreshBody()
+          .setVisible(false);
+        ledge.body.checkCollision.down = false;
+        this.physics.add.collider(player, ledgePlatforms);
+        akiroWindow = this.physics.add
+          .sprite(goalX, 180, "akiro-window")
+          .setDepth(2.2)
+          .setScale(0.6);
+        akiroWindow.body.allowGravity = false;
+        this.physics.add.overlap(player, akiroWindow, winLevel, null, this);
+      }
+
+      function spawnEnemy(scene, worldX) {
+        const guard = scene.physics.add
+          .sprite(worldX, 424, "enforcer")
+          .setDepth(150)
+          .setScale(0.25);
+        guard.setOrigin(0.5, 1);
+        guard.body.allowGravity = false;
+        guard.body.setSize(180, 480).setOffset(86, 15);
+        guard.anims.play("enforcer-walk");
+
+        const beam = scene.add.graphics().setDepth(151);
+        const zone = scene.add.rectangle(worldX, 350, 120, 40, 0xff0000, 0);
+        scene.physics.add.existing(zone, true);
+
+        enemies.push({
+          graphic: guard,
+          beam: beam,
+          zone: zone,
+          spawnX: worldX,
+          direction: 1,
+          patrolWidth: 150,
+          pauseUntil: 0,
+        });
+
+        scene.physics.add.overlap(player, zone, () => {
+          if (scene.time.now - lastHitTime > 1000) {
+            points -= 10;
+            lastHitTime = scene.time.now;
+            pointsText.setText(`DECRYPTION SCORE: ${points}`);
+            player.setTint(0xff0000);
+            scene.time.delayedCall(200, () => player.clearTint());
+          }
+        });
+      }
+
+      function update() {
+        if (goalReached) return;
+
+        let targetScale = 2.5;
+        const slowdownDist = 900;
+        const fullSlowDist = 400;
+        enemies.forEach((e) => {
+          const dist = Math.abs(e.graphic.x - player.x);
+          if (dist < slowdownDist) {
+            const t = Math.max(
+              0,
+              (dist - fullSlowDist) / (slowdownDist - fullSlowDist),
+            );
+            targetScale = Math.min(targetScale, 1.0 + t * 1.5);
+          }
+        });
+        speedScale += (targetScale - speedScale) * 0.08;
+
+        if (this.cursors.left.isDown) {
+          player.setVelocityX(-playerWalkSpeed * speedScale);
+          player.setFlipX(true);
+        } else if (this.cursors.right.isDown) {
+          player.setVelocityX(playerWalkSpeed * speedScale);
+          player.setFlipX(false);
+        } else {
+          player.setVelocityX(0);
+        }
+
+        if (this.cursors.up.isDown && player.body.blocked.down) {
+          player.setVelocityY(-600);
+        }
+
+        if (player.body.velocity.x !== 0 && player.body.blocked.down) {
+          player.anims.play("run", true);
+          player.anims.timeScale = speedScale;
+        } else if (player.body.blocked.down) {
+          player.anims.play("idle", true);
+          player.anims.timeScale = 1;
+        }
+
+        let progress = Math.min(
+          100,
+          Math.floor((player.x / levelLength) * 100),
+        );
+        distanceText.setText(`INTEL SYNC: ${progress}%`);
+        // Add this inside your update loop where you update progress
+        if (speedScale < 1.5) {
+          distanceText.setAlpha(0.5 + Math.random() * 0.5); // Flickers when slowed down near guards
+          distanceText.setText(`INTEL SYNC: ${progress}% [INTERFERENCE]`);
+        } else {
+          distanceText.setAlpha(1);
+          distanceText.setText(`INTEL SYNC: ${progress}%`);
+        }
+
+        const camX = this.cameras.main.scrollX;
+        this.sky.tilePositionX = camX * 0.25;
+        this.houses.tilePositionX = camX * 1.9;
+        this.street.tilePositionX = camX * 2.27;
+
+        const now = this.time.now;
+
+        enemies.forEach((e) => {
+          const walkingTowardHarper =
+            e.graphic.x > player.x && e.direction === -1;
+          const guardInternalSpeed = walkingTowardHarper ? 0.6 : 1.6;
+
+          if (e.pauseUntil > 0) {
+            if (now >= e.pauseUntil) {
+              e.direction *= -1;
+              e.pauseUntil = 0;
+              e.graphic.anims.play("enforcer-walk", true);
+            }
+          } else {
+            e.graphic.x += e.direction * guardInternalSpeed;
+            e.graphic.anims.timeScale = walkingTowardHarper ? 0.4 : 1;
+
+            if (
+              e.graphic.x > e.spawnX + e.patrolWidth ||
+              e.graphic.x < e.spawnX - e.patrolWidth
+            ) {
+              e.graphic.x = Math.max(
+                e.spawnX - e.patrolWidth,
+                Math.min(e.graphic.x, e.spawnX + e.patrolWidth),
+              );
+              e.pauseUntil = now + 2000;
+              e.graphic.anims.play("enforcer-idle", true);
+            }
+          }
+
+          e.graphic.setFlipX(e.direction === -1);
+
+          e.beam.clear();
+          e.beam.fillStyle(0xff0000, 0.2);
+          const dir = e.direction;
+          const eyeY = e.graphic.y - 100;
+
+          e.beam.beginPath();
+          e.beam.moveTo(e.graphic.x, eyeY);
+          e.beam.lineTo(e.graphic.x + dir * 220, eyeY + 60);
+          e.beam.lineTo(e.graphic.x + dir * 220, eyeY - 60);
+          e.beam.fillPath();
+
+          e.zone.x = e.graphic.x + dir * 140;
+          e.zone.y = eyeY;
+          e.zone.body.updateFromGameObject();
+        });
+      }
+
+      function winLevel() {
+        goalReached = true;
+        player.setVelocity(0);
+        player.anims.play("idle");
+        this.add
+          .rectangle(400, 225, 800, 450, 0x000000, 0.7)
+          .setDepth(2000)
+          .setScrollFactor(0);
+        this.add
+          .text(400, 180, "MISSION SUCCESS", {
+            fontSize: "42px",
+            fill: "#00ffff",
+            fontFamily: "Courier New",
+          })
+          .setOrigin(0.5)
+          .setDepth(2001)
+          .setScrollFactor(0);
+        this.add
+          .text(400, 300, "Press R to Restart", {
+            fontSize: "18px",
+            fill: "#ffffff",
+          })
+          .setOrigin(0.5)
+          .setDepth(2001)
+          .setScrollFactor(0);
+        this.input.keyboard.once("keydown-R", () => {
+          location.reload();
+        });
+      }
+    </script>
+  </body>
+</html>
