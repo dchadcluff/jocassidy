@@ -2,420 +2,2200 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Harper's Run — Jo Cassidy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Harper's Run: Covert Infiltration — Jo Cassidy</title>
+    <meta name="description" content="Play Harper's Run, a cyberpunk stealth runner and platformer based on the YA thriller series by Jo Cassidy." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
+      :root {
+        --blood:    #9b1a2a;
+        --crimson:  #c41e3a;
+        --cyan:     #00f0ff;
+        --cyan-dim: #008b99;
+        --amber:    #ffb700;
+        --amber-glow: rgba(255, 183, 0, 0.4);
+        --void:     #050308;
+        --dark:     #0c0812;
+        --surface:  #140d1e;
+        --parchment:#e8e0d0;
+        --dim:      #9a8c9e;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
       body {
-        background: #000;
+        background: var(--void);
+        color: var(--parchment);
+        font-family: 'Share Tech Mono', monospace, sans-serif;
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
-        min-height: 100vh;
+        overflow-x: hidden;
       }
+
+      /* ─── NAV ─────────────────────────────────────── */
       nav {
         width: 100%;
-        background: #0a0008;
-        border-bottom: 1px solid #8b000055;
+        background: rgba(7, 4, 12, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(196, 30, 58, 0.35);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 32px;
+        padding: 14px 40px;
+        z-index: 100;
       }
-      nav a {
-        font-family: 'Cinzel', serif;
-        color: #e8e0d0;
+      .nav-brand {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 1.15rem;
+        color: var(--crimson);
         text-decoration: none;
-        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+        text-shadow: 0 0 15px rgba(196, 30, 58, 0.5);
+      }
+      .nav-links {
+        display: flex;
+        gap: 32px;
+        list-style: none;
+      }
+      .nav-links a {
+        font-family: 'Cinzel', serif;
+        font-size: 0.8rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        text-decoration: none;
+        transition: all 0.25s;
+      }
+      .nav-links a:hover, .nav-links a.active {
+        color: var(--amber);
+        text-shadow: 0 0 10px var(--amber-glow);
+      }
+
+      /* ─── GAME CONTAINER ──────────────────────────── */
+      .game-wrapper {
+        flex: 1;
+        width: 100%;
+        max-width: 1060px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 16px 16px 24px;
+      }
+
+      .game-header {
+        width: 100%;
+        max-width: 960px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding: 0 4px;
+      }
+      .game-title-group h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.15rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--parchment);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .game-title-group h1 span {
+        color: var(--amber);
+        text-shadow: 0 0 10px var(--amber-glow);
+      }
+      .game-subtag {
+        font-size: 0.72rem;
+        color: var(--dim);
+        letter-spacing: 0.15em;
+        margin-top: 2px;
+      }
+      .dps-badge {
+        background: rgba(196, 30, 58, 0.15);
+        border: 1px solid var(--crimson);
+        color: var(--crimson);
+        font-size: 0.7rem;
+        letter-spacing: 0.18em;
+        padding: 4px 10px;
+        border-radius: 2px;
+        text-transform: uppercase;
+        box-shadow: 0 0 10px rgba(196, 30, 58, 0.2);
+      }
+
+      #game-frame {
+        position: relative;
+        width: 100%;
+        max-width: 960px;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        border: 1px solid rgba(255, 183, 0, 0.4);
+        box-shadow:
+          0 0 30px rgba(255, 183, 0, 0.15),
+          0 0 60px rgba(155, 26, 42, 0.2),
+          inset 0 0 20px rgba(0, 0, 0, 0.8);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      #game-container {
+        width: 100%;
+        height: 100%;
+      }
+      #game-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+      }
+
+      /* ─── NATIVE HTML OVERLAY MODALS ────────────────── */
+      .html-modal-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(5, 3, 8, 0.88);
+        backdrop-filter: blur(4px);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+      }
+      .html-modal-card {
+        background: #140d1e;
+        border: 1px solid var(--amber);
+        box-shadow: 0 0 35px var(--amber-glow), inset 0 0 20px rgba(0,0,0,0.8);
+        border-radius: 4px;
+        max-width: 680px;
+        width: 100%;
+        padding: 28px 36px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+      .html-modal-title {
+        font-family: 'Cinzel', serif;
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: var(--amber);
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        transition: color 0.2s;
       }
-      nav a:hover { color: #c41e3a; }
-      nav .brand { color: #c41e3a; font-weight: 700; font-size: 1rem; }
-      nav .nav-links { display: flex; gap: 28px; }
-      .game-wrap {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 32px 0;
+      .html-modal-card.gameover {
+        border-color: var(--crimson);
+        box-shadow: 0 0 35px rgba(196, 30, 58, 0.4);
       }
-      #game-container {
-        border: 2px solid #00ffff55;
-        box-shadow: 0 0 20px #00ffff22;
+      .html-modal-card.gameover .html-modal-title {
+        color: var(--crimson);
       }
-      .alpha-badge {
+      .html-modal-eval {
         font-family: 'Cinzel', serif;
-        color: #8b000099;
-        font-size: 0.7rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        padding: 6px 0 0;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #ffd700;
+        letter-spacing: 0.15em;
       }
+      .html-modal-stats {
+        font-size: 0.85rem;
+        color: var(--parchment);
+        line-height: 1.6;
+        white-space: pre-line;
+        margin: 4px 0 10px;
+      }
+      .modal-btn-row {
+        display: flex;
+        gap: 16px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .cyber-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Cinzel', serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        padding: 12px 24px;
+        border-radius: 3px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        outline: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      }
+      .cyber-btn.primary {
+        background: var(--crimson);
+        color: #ffffff;
+      }
+      .cyber-btn.primary:hover {
+        background: #e02848;
+        box-shadow: 0 0 15px rgba(196, 30, 58, 0.6);
+        transform: translateY(-2px);
+      }
+      .cyber-btn.secondary {
+        background: #22152b;
+        border: 1px solid var(--amber);
+        color: var(--amber);
+      }
+      .cyber-btn.secondary:hover {
+        background: rgba(255, 183, 0, 0.15);
+        box-shadow: 0 0 15px var(--amber-glow);
+        transform: translateY(-2px);
+      }
+
+      /* ─── CONTROLS HUD & HINTS ─────────────────────── */
+      .game-footer-info {
+        width: 100%;
+        max-width: 960px;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        margin-top: 12px;
+        padding: 12px 18px;
+        background: var(--surface);
+        border: 1px solid rgba(196, 30, 58, 0.2);
+        border-radius: 4px;
+      }
+      @media (max-width: 700px) {
+        .game-footer-info { grid-template-columns: 1fr; }
+      }
+      .controls-guide {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        font-size: 0.76rem;
+        color: var(--dim);
+      }
+      .key-cap {
+        display: inline-block;
+        background: #1e152a;
+        border: 1px solid rgba(255, 183, 0, 0.5);
+        color: var(--amber);
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      }
+      .mission-context {
+        font-size: 0.74rem;
+        color: var(--dim);
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      @media (max-width: 700px) {
+        .mission-context { text-align: left; }
+      }
+      .mission-context strong {
+        color: var(--parchment);
+      }
+
+      /* ─── TOUCH CONTROLS (Mobile) ─────────────────── */
+      .touch-overlay {
+        display: none;
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 200;
+      }
+      @media (max-width: 900px), (pointer: coarse) {
+        .touch-overlay { display: block; }
+      }
+      .touch-btn {
+        pointer-events: auto;
+        position: absolute;
+        background: rgba(12, 8, 18, 0.85);
+        border: 1px solid rgba(255, 183, 0, 0.6);
+        color: var(--amber);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: bold;
+        user-select: none;
+        touch-action: manipulation;
+        backdrop-filter: blur(4px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+      }
+      .touch-btn:active, .touch-btn.active {
+        background: rgba(255, 183, 0, 0.35);
+        color: #fff;
+      }
+      .touch-dpad-left { bottom: 16px; left: 14px; width: 50px; height: 50px; }
+      .touch-dpad-right { bottom: 16px; left: 70px; width: 50px; height: 50px; }
+      .touch-action-jump { bottom: 16px; right: 14px; width: 62px; height: 50px; border-color: var(--amber); }
+      .touch-action-slide { bottom: 16px; right: 82px; width: 62px; height: 50px; border-color: #ffaa00; color: #ffaa00; }
+      .touch-action-taser { bottom: 74px; right: 14px; width: 62px; height: 44px; border-color: #00ff88; color: #00ff88; font-size: 0.78rem; }
+      .touch-action-hack { bottom: 74px; right: 82px; width: 62px; height: 44px; border-color: #00f0ff; color: #00f0ff; font-size: 0.78rem; }
     </style>
   </head>
   <body>
     <nav>
-      <a href="index.html" class="brand">Jo Cassidy</a>
-      <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="books.html">Books</a>
-        <a href="play.html">Play Harper</a>
-      </div>
+      <a href="index.html" class="nav-brand">Jo Cassidy</a>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#harper">Harper</a></li>
+        <li><a href="books.html">Books</a></li>
+        <li><a href="play.html" class="active">Play Harper</a></li>
+      </ul>
     </nav>
-    <div class="game-wrap">
-      <div>
-        <div id="game-container"></div>
-        <div class="alpha-badge" style="text-align:center;margin-top:8px;">⚠ Alpha — work in progress</div>
+
+    <main class="game-wrapper">
+      <div class="game-header">
+        <div class="game-title-group">
+          <h1>Harper's Run <span>// Operation Dogwood</span></h1>
+          <div class="game-subtag">SAN DIEGO 2098 — SECTOR 7 INFILTRATION</div>
+        </div>
+        <div class="dps-badge">DPS COVERT OP</div>
       </div>
-    </div>
+
+      <div id="game-frame">
+        <div id="game-container"></div>
+        
+        <!-- Touch Overlay for Mobile -->
+        <div class="touch-overlay">
+          <button id="btn-left" class="touch-btn touch-dpad-left">◀</button>
+          <button id="btn-right" class="touch-btn touch-dpad-right">▶</button>
+          <button id="btn-slide" class="touch-btn touch-action-slide">SLIDE</button>
+          <button id="btn-jump" class="touch-btn touch-action-jump">JUMP</button>
+          <button id="btn-taser" class="touch-btn touch-action-taser">⚡ DART</button>
+          <button id="btn-hack" class="touch-btn touch-action-hack">💻 HACK</button>
+        </div>
+
+        <!-- Native HTML Modal: Victory / Extraction -->
+        <div id="modal-victory" class="html-modal-overlay">
+          <div class="html-modal-card">
+            <div class="html-modal-title">MISSION SUCCESS // AKIRO REACHED</div>
+            <div id="victory-rank" class="html-modal-eval">EVALUATION: RANK S</div>
+            <div id="victory-stats" class="html-modal-stats">
+              TIME ELAPSED: 45s
+              INTEL DRIVES RECOVERED: 10 / 10
+              STEALTH RATING: GHOST (+1000 pts)
+              FINAL DECRYPTION SCORE: 3500
+
+              "Harper, you made it. The syndicate files are uploading now." — Akiro
+            </div>
+            <div class="modal-btn-row">
+              <button id="btn-victory-replay" class="cyber-btn primary">PLAY AGAIN [R]</button>
+              <a href="books.html" class="cyber-btn secondary">READ THE BOOKS</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Native HTML Modal: Game Over / Reboot -->
+        <div id="modal-gameover" class="html-modal-overlay">
+          <div class="html-modal-card gameover">
+            <div class="html-modal-title">TACTICAL REBOOT REQUIRED</div>
+            <div class="html-modal-stats">
+              Agent Chandler, your cyber shield was depleted by corporate security fire.
+              Rebooting infiltration sequence...
+            </div>
+            <div class="modal-btn-row">
+              <button id="btn-gameover-restart" class="cyber-btn primary">RESTART OPERATION [R]</button>
+              <a href="books.html" class="cyber-btn secondary">VISIT ARCHIVES</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-footer-info">
+        <div class="controls-guide">
+          <div><span class="key-cap">A</span><span class="key-cap">D</span> Run</div>
+          <div><span class="key-cap">W</span> / <span class="key-cap">SPACE</span> <strong>Jump & Double Jump</strong></div>
+          <div><span class="key-cap">S</span> / <span class="key-cap">SHIFT</span> <strong>Slide Tackle / Shadow Hide</strong></div>
+          <div><span class="key-cap">F</span> / <span class="key-cap">Q</span> <strong>EMP Taser Dart</strong></div>
+          <div><span class="key-cap">E</span> Hack Terminal</div>
+          <div><span class="key-cap">M</span> Mute</div>
+          <div><span class="key-cap">P</span> Pause</div>
+        </div>
+        <div class="mission-context">
+          <div><strong>COMBAT STRATEGY:</strong> Alerted Enforcers fire blaster carbines and Drones emit shock beams. Slide tackle or EMP Dart guards before they deplete your cyber shield!</div>
+        </div>
+      </div>
+    </main>
+
     <script>
+      /* ═══════════════════════════════════════════════════════════════
+         TOUCH CONTROL STATE
+         ═══════════════════════════════════════════════════════════════ */
+      const touchInput = {
+        left: false,
+        right: false,
+        jump: false,
+        slide: false,
+        taser: false,
+        hack: false
+      };
+
+      function bindTouch(id, prop) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const setOn = (e) => { e.preventDefault(); touchInput[prop] = true; el.classList.add('active'); };
+        const setOff = (e) => { e.preventDefault(); touchInput[prop] = false; el.classList.remove('active'); };
+        el.addEventListener('touchstart', setOn, { passive: false });
+        el.addEventListener('touchend', setOff, { passive: false });
+        el.addEventListener('touchcancel', setOff, { passive: false });
+        el.addEventListener('mousedown', setOn);
+        el.addEventListener('mouseup', setOff);
+        el.addEventListener('mouseleave', setOff);
+      }
+      bindTouch('btn-left', 'left');
+      bindTouch('btn-right', 'right');
+      bindTouch('btn-jump', 'jump');
+      bindTouch('btn-slide', 'slide');
+      bindTouch('btn-taser', 'taser');
+      bindTouch('btn-hack', 'hack');
+
+      // Hook HTML Modal Button Clicks
+      document.getElementById('btn-victory-replay')?.addEventListener('click', () => location.reload());
+      document.getElementById('btn-gameover-restart')?.addEventListener('click', () => location.reload());
+
+      /* ═══════════════════════════════════════════════════════════════
+         CYBER AUDIO SYNTHESIZER (Pure Web Audio API)
+         ═══════════════════════════════════════════════════════════════ */
+      class CyberAudio {
+        constructor() {
+          this.ctx = null;
+          this.muted = false;
+          this.musicPlaying = false;
+          this.musicStep = 0;
+          this.musicTimer = null;
+          this.alertMode = false;
+        }
+
+        init() {
+          if (!this.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+          }
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        }
+
+        toggleMute() {
+          this.muted = !this.muted;
+          if (this.muted && this.musicPlaying) {
+            this.stopMusic();
+          } else if (!this.muted && !this.musicPlaying) {
+            this.startMusic();
+          }
+          return this.muted;
+        }
+
+        playJump(isDouble = false) {
+          if (this.muted) return;
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          osc.type = isDouble ? 'triangle' : 'sine';
+          const startF = isDouble ? 280 : 180;
+          const endF = isDouble ? 720 : 540;
+          osc.frequency.setValueAtTime(startF, now);
+          osc.frequency.exponentialRampToValueAtTime(endF, now + 0.12);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        }
+
+        playLand() {
+          if (this.muted) return;
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(120, now);
+          osc.frequency.exponentialRampToValueAtTime(45, now + 0.08);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        }
+
+        playSlide() {
+          if (this.muted) return;
+          this.init();
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.18);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(1600, this.ctx.currentTime);
+          filter.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.18);
+          const gain = this.ctx.createGain();
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          noise.start();
+        }
+
+        playTaserFire() {
+          if (this.muted) return;
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(1600, now + 0.08);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        }
+
+        playBlasterFire() {
+          if (this.muted) return;
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(120, now + 0.14);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+        }
+
+        playTaserZap() {
+          if (this.muted) return;
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.linearRampToValueAtTime(800, now + 0.05);
+          osc.frequency.linearRampToValueAtTime(200, now + 0.15);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
+
+        playTackle() {
+          if (this.muted) return;
+          this.init();
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.exponentialRampToValueAtTime(35, now + 0.2);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        }
+
+        playPickup() {
+          if (this.muted) return;
+          this.init();
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const now = this.ctx.currentTime + idx * 0.035;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.12);
+          });
+        }
+
+        playAmmoPickup() {
+          if (this.muted) return;
+          this.init();
+          const notes = [440, 660, 880];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const now = this.ctx.currentTime + idx * 0.04;
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.1);
+          });
+        }
+
+        playHackStep() {
+          if (this.muted) return;
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(800 + Math.random() * 600, now);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.04);
+        }
+
+        playHackComplete() {
+          if (this.muted) return;
+          this.init();
+          const notes = [739.99, 880.00, 1108.73, 1479.98];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const now = this.ctx.currentTime + idx * 0.06;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.2);
+          });
+        }
+
+        playAlert() {
+          if (this.muted) return;
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.linearRampToValueAtTime(160, now + 0.3);
+          gain.gain.setValueAtTime(0.28, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        }
+
+        playDamage() {
+          if (this.muted) return;
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(90, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 0.22);
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.24);
+        }
+
+        playBoost() {
+          if (this.muted) return;
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const now = this.ctx.currentTime;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(980, now + 0.25);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.28);
+        }
+
+        playVictory() {
+          if (this.muted) return;
+          this.init();
+          const chords = [
+            [440, 554.37, 659.25],
+            [523.25, 659.25, 783.99],
+            [587.33, 739.99, 880.00],
+            [659.25, 830.61, 987.77]
+          ];
+          chords.forEach((chord, step) => {
+            chord.forEach(freq => {
+              const osc = this.ctx.createOscillator();
+              const gain = this.ctx.createGain();
+              const now = this.ctx.currentTime + step * 0.22;
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, now);
+              gain.gain.setValueAtTime(0.16, now);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+              osc.connect(gain);
+              gain.connect(this.ctx.destination);
+              osc.start(now);
+              osc.stop(now + 0.45);
+            });
+          });
+        }
+
+        startMusic() {
+          if (this.musicPlaying || this.muted) return;
+          this.init();
+          this.musicPlaying = true;
+          this.musicStep = 0;
+          const bassScale = [110, 110, 130.81, 110, 146.83, 130.81, 164.81, 146.83];
+          const leadScale = [440, 523.25, 659.25, 587.33, 523.25, 659.25, 783.99, 659.25];
+
+          const tick = () => {
+            if (!this.musicPlaying || this.muted) return;
+            const now = this.ctx.currentTime;
+            const step = this.musicStep % 8;
+            
+            const bOsc = this.ctx.createOscillator();
+            const bGain = this.ctx.createGain();
+            bOsc.type = this.alertMode ? 'sawtooth' : 'triangle';
+            bOsc.frequency.setValueAtTime(bassScale[step] * (this.alertMode ? 1.2 : 1), now);
+            bGain.gain.setValueAtTime(this.alertMode ? 0.12 : 0.08, now);
+            bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+            bOsc.connect(bGain);
+            bGain.connect(this.ctx.destination);
+            bOsc.start(now);
+            bOsc.stop(now + 0.12);
+
+            if (step % 2 === 0 || this.alertMode) {
+              const lOsc = this.ctx.createOscillator();
+              const lGain = this.ctx.createGain();
+              lOsc.type = 'sine';
+              lOsc.frequency.setValueAtTime(leadScale[step], now);
+              lGain.gain.setValueAtTime(0.04, now);
+              lGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+              lOsc.connect(lGain);
+              lGain.connect(this.ctx.destination);
+              lOsc.start(now);
+              lOsc.stop(now + 0.09);
+            }
+
+            this.musicStep++;
+            const interval = this.alertMode ? 120 : 150;
+            this.musicTimer = setTimeout(tick, interval);
+          };
+          tick();
+        }
+
+        stopMusic() {
+          this.musicPlaying = false;
+          if (this.musicTimer) clearTimeout(this.musicTimer);
+        }
+      }
+
+      const audio = new CyberAudio();
+
+      /* ═══════════════════════════════════════════════════════════════
+         PHASER 3 MAIN GAME SCENE
+         ═══════════════════════════════════════════════════════════════ */
+      class MainScene extends Phaser.Scene {
+        constructor() {
+          super({ key: 'MainScene' });
+        }
+
+        preload() {
+          this.load.image('sky', 'assets/sky_seamless.png');
+          this.load.image('midground', 'assets/city_midground_seamless.png');
+          this.load.image('catwalk_ledge', 'assets/catwalk_ledge.png');
+          this.load.image('catwalk_pillar', 'assets/catwalk_pillar.png');
+          this.load.image('ground_pavement', 'assets/ground_pavement.png');
+          
+          this.load.image('terminal', 'assets/terminal_console.png');
+          this.load.image('jump_pad', 'assets/jump_pad.png');
+          this.load.image('laser_post', 'assets/laser_post.png');
+          this.load.image('data_cube', 'assets/data_cube_64.png');
+          this.load.image('drone', 'assets/drone_120.png');
+          this.load.image('akiro_tower', 'assets/akiro_penthouse.png');
+          this.load.image('stealth_crate', 'assets/stealth_crate.png');
+          this.load.image('emp_dart', 'assets/emp_dart.png');
+          this.load.image('ammo_pickup', 'assets/ammo_pickup.png');
+
+          this.load.spritesheet('harper', 'sprites/harper/harper_sheet.png', {
+            frameWidth: 160,
+            frameHeight: 240
+          });
+          this.load.spritesheet('enforcer', 'sprites/others/enforcer_sheet.png', {
+            frameWidth: 180,
+            frameHeight: 260
+          });
+        }
+
+        create() {
+          this.worldWidth = 5800;
+          this.worldHeight = 540;
+          this.goalX = 5280;
+
+          // Game state
+          this.score = 0;
+          this.scoreMultiplier = 1.0;
+          this.collectedData = 0;
+          this.totalDataNodes = 10;
+          this.shield = 100;
+          this.dartAmmo = 3;
+          this.maxDartAmmo = 5;
+          this.stealthState = 'GHOST';
+          this.alertTimer = 0;
+          this.isHacking = false;
+          this.hackProgress = 0;
+          this.currentTerminal = null;
+          this.isSliding = false;
+          this.slideEndTime = 0;
+          this.slideCooldown = 0;
+          this.isHiding = false;
+          this.jumpsLeft = 2;
+          this.lastTaserTime = 0;
+          this.lastSafeGround = { x: 180, y: 490 };
+          this.missionStarted = false;
+          this.missionComplete = false;
+          this.gameOver = false;
+          this.startTime = 0;
+
+          this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
+          this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
+
+          // Deep Sky & Midground Parallax
+          this.sky = this.add.tileSprite(480, 270, 960, 540, 'sky').setScrollFactor(0).setDepth(0);
+          this.midground = this.add.tileSprite(480, 310, 1376, 540, 'midground').setOrigin(0.5, 0.5).setScrollFactor(0).setScale(0.8).setDepth(1);
+
+          this.createAnimations();
+
+          // Groups
+          this.platforms = this.physics.add.staticGroup();
+          this.groundPlatforms = this.physics.add.staticGroup();
+          this.terminals = this.physics.add.staticGroup();
+          this.jumpPads = this.physics.add.staticGroup();
+          this.laserPosts = this.physics.add.staticGroup();
+          this.crates = this.physics.add.staticGroup();
+          this.ammoPickups = this.physics.add.group();
+          this.dataNodes = this.physics.add.group();
+          this.darts = this.physics.add.group();
+          this.enforcerLasers = this.physics.add.group();
+          this.enforcers = [];
+          this.drones = [];
+          this.laserBeams = [];
+
+          this.buildLevel();
+
+          // Harper
+          this.player = this.physics.add.sprite(180, 420, 'harper');
+          this.player.setDepth(100).setScale(0.42);
+          this.player.setOrigin(0.5, 1);
+          this.player.body.setSize(70, 190).setOffset(45, 45);
+          this.player.setCollideWorldBounds(true);
+          this.player.body.setGravityY(1000);
+
+          this.cameras.main.startFollow(this.player, true, 0.12, 0.12, -140, 40);
+
+          // Collisions
+          this.physics.add.collider(this.player, this.groundPlatforms, () => {
+            if (this.player.body.touching.down) {
+              if (this.jumpsLeft < 2) audio.playLand();
+              this.jumpsLeft = 2;
+              if (this.player.y < 520) {
+                this.lastSafeGround = { x: this.player.x, y: this.player.y };
+              }
+            }
+          });
+
+          this.physics.add.collider(this.player, this.platforms, () => {
+            if (this.player.body.touching.down) {
+              if (this.jumpsLeft < 2) audio.playLand();
+              this.jumpsLeft = 2;
+              this.lastSafeGround = { x: this.player.x, y: this.player.y };
+            }
+          });
+
+          this.physics.add.overlap(this.player, this.dataNodes, this.collectDataNode, null, this);
+          this.physics.add.overlap(this.player, this.ammoPickups, this.collectAmmo, null, this);
+          this.physics.add.overlap(this.player, this.jumpPads, this.triggerJumpPad, null, this);
+          this.physics.add.overlap(this.player, this.enforcerLasers, this.hitByEnforcerLaser, null, this);
+          this.physics.add.overlap(this.darts, this.groundPlatforms, (dart) => { dart.destroy(); });
+          this.physics.add.overlap(this.enforcerLasers, this.groundPlatforms, (l) => { l.destroy(); });
+
+          // Keyboard Inputs
+          this.cursors = this.input.keyboard.createCursorKeys();
+          this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+          this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+          this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+          this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+          this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+          this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+          this.keyQ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+          this.keyShift = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+          this.keyM = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
+          this.keyP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+          this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+
+          this.input.keyboard.on('keydown-M', () => {
+            const isMuted = audio.toggleMute();
+            this.soundBtnText.setText(isMuted ? '🔇 SOUND: OFF' : '🔊 SOUND: ON');
+          });
+
+          this.input.keyboard.on('keydown-P', () => this.togglePause());
+          this.input.keyboard.on('keydown-R', () => {
+            if (this.gameOver || this.missionComplete) location.reload();
+          });
+
+          // Graphics layers
+          this.laserGraphics = this.add.graphics().setDepth(40);
+          this.visionGraphics = this.add.graphics().setDepth(90);
+          this.trailGraphics = this.add.graphics().setDepth(98);
+          this.fxGraphics = this.add.graphics().setDepth(150);
+
+          this.createParticles();
+
+          // Target Skyscraper
+          this.targetBuilding = this.add.image(this.goalX, 540, 'akiro_tower').setOrigin(0.5, 1).setScale(0.85).setDepth(15);
+          
+          // Goal Balcony Platform & Trigger
+          this.createCatwalk(this.goalX + 60, 210, 260);
+          this.goalBeacon = this.add.rectangle(this.goalX + 60, 160, 80, 100, 0xffb700, 0.25).setDepth(20);
+          this.physics.add.existing(this.goalBeacon, true);
+          this.physics.add.overlap(this.player, this.goalBeacon, this.reachGoal, null, this);
+
+          this.createHUD();
+          this.showMissionBriefing();
+        }
+
+        createAnimations() {
+          this.anims.create({
+            key: 'harper-idle',
+            frames: this.anims.generateFrameNumbers('harper', { start: 0, end: 3 }),
+            frameRate: 5,
+            repeat: -1
+          });
+          this.anims.create({
+            key: 'harper-walk',
+            frames: this.anims.generateFrameNumbers('harper', { start: 4, end: 7 }),
+            frameRate: 7,
+            repeat: -1
+          });
+          this.anims.create({
+            key: 'harper-run',
+            frames: this.anims.generateFrameNumbers('harper', { start: 8, end: 15 }),
+            frameRate: 12,
+            repeat: -1
+          });
+          this.anims.create({
+            key: 'harper-jump',
+            frames: [{ key: 'harper', frame: 18 }],
+            frameRate: 1
+          });
+          this.anims.create({
+            key: 'harper-fall',
+            frames: [{ key: 'harper', frame: 20 }],
+            frameRate: 1
+          });
+          this.anims.create({
+            key: 'harper-slide',
+            frames: [{ key: 'harper', frame: 22 }],
+            frameRate: 1
+          });
+          this.anims.create({
+            key: 'harper-crouch',
+            frames: [{ key: 'harper', frame: 27 }],
+            frameRate: 1
+          });
+          this.anims.create({
+            key: 'harper-hack',
+            frames: this.anims.generateFrameNumbers('harper', { start: 32, end: 33 }),
+            frameRate: 4,
+            repeat: -1
+          });
+
+          this.anims.create({
+            key: 'enforcer-idle',
+            frames: this.anims.generateFrameNumbers('enforcer', { start: 0, end: 3 }),
+            frameRate: 4,
+            repeat: -1
+          });
+          this.anims.create({
+            key: 'enforcer-walk',
+            frames: this.anims.generateFrameNumbers('enforcer', { start: 8, end: 15 }),
+            frameRate: 6,
+            repeat: -1
+          });
+          this.anims.create({
+            key: 'enforcer-alert',
+            frames: this.anims.generateFrameNumbers('enforcer', { start: 16, end: 19 }),
+            frameRate: 6,
+            repeat: -1
+          });
+          this.anims.create({
+            key: 'enforcer-shocked',
+            frames: this.anims.generateFrameNumbers('enforcer', { start: 24, end: 25 }),
+            frameRate: 8,
+            repeat: -1
+          });
+          this.anims.create({
+            key: 'enforcer-down',
+            frames: [{ key: 'enforcer', frame: 27 }],
+            frameRate: 1
+          });
+        }
+
+        createParticles() {
+          const sparkGfx = this.make.graphics({ x: 0, y: 0, add: false });
+          sparkGfx.fillStyle(0xffb700, 1);
+          sparkGfx.fillRect(0, 0, 4, 4);
+          sparkGfx.generateTexture('amber_spark', 4, 4);
+
+          this.sparkEmitter = this.add.particles(0, 0, 'amber_spark', {
+            speed: { min: 40, max: 200 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 1.2, end: 0 },
+            blendMode: 'ADD',
+            lifespan: 400,
+            emitting: false
+          }).setDepth(150);
+        }
+
+        createCatwalk(x, y, width, addPillars = true) {
+          const ledge = this.add.tileSprite(x, y, width, 22, 'catwalk_ledge').setDepth(50);
+          
+          this.physics.add.existing(ledge, true);
+          ledge.body.checkCollision.down = false;
+          ledge.body.checkCollision.left = false;
+          ledge.body.checkCollision.right = false;
+          ledge.body.checkCollision.up = true;
+          this.platforms.add(ledge);
+
+          if (addPillars && y < 480) {
+            const pillarH = 510 - y;
+            const p1 = this.add.tileSprite(x - width / 2 + 16, y + 11 + pillarH / 2, 16, pillarH, 'catwalk_pillar').setDepth(45);
+            const p2 = this.add.tileSprite(x + width / 2 - 16, y + 11 + pillarH / 2, 16, pillarH, 'catwalk_pillar').setDepth(45);
+          }
+
+          return ledge;
+        }
+
+        buildLevel() {
+          // 1. Solid Ground Floor
+          const groundW = 128;
+          const totalGround = Math.ceil(this.worldWidth / groundW);
+          for (let i = 0; i < totalGround; i++) {
+            const gx = i * groundW + 64;
+            // Pit Gaps
+            if ((gx > 2350 && gx < 2480) || (gx > 4050 && gx < 4180)) {
+              continue;
+            }
+            const gp = this.add.image(gx, 524, 'ground_pavement').setDepth(50);
+            this.physics.add.existing(gp, true);
+            gp.body.checkCollision.down = false;
+            gp.body.checkCollision.left = true;
+            gp.body.checkCollision.right = true;
+            gp.body.checkCollision.up = true;
+            this.groundPlatforms.add(gp);
+          }
+
+          // 2. High-Visibility Amber Catwalks
+          const catwalks = [
+            // Sector 1 (0 - 1500px)
+            { x: 360, y: 430, w: 200 },
+            { x: 620, y: 350, w: 260 },
+            { x: 880, y: 270, w: 240 },
+            { x: 1140, y: 360, w: 300 }, // Has Terminal 1
+            { x: 1420, y: 290, w: 240 },
+
+            // Sector 2 (1500 - 3200px)
+            { x: 1720, y: 430, w: 220 },
+            { x: 1980, y: 340, w: 280 },
+            { x: 2260, y: 260, w: 260 }, // Jump across Gap 1
+            { x: 2540, y: 380, w: 260 },
+            { x: 2820, y: 310, w: 320 }, // Has Terminal 2
+            { x: 3120, y: 230, w: 260 },
+
+            // Sector 3 (3200 - 4600px)
+            { x: 3400, y: 430, w: 220 },
+            { x: 3640, y: 340, w: 280 },
+            { x: 3920, y: 260, w: 260 }, // High Catwalk over Gap 2
+            { x: 4200, y: 360, w: 260 },
+            { x: 4480, y: 310, w: 320 }, // Has Terminal 3
+            { x: 4760, y: 250, w: 260 },
+
+            // Sector 4 (4600 - 5400px)
+            { x: 5040, y: 360, w: 280 }
+          ];
+
+          catwalks.forEach(c => {
+            this.createCatwalk(c.x, c.y, c.w, true);
+          });
+
+          // Hazard Warnings at Pit Edges
+          const hazardGaps = [
+            { xLeft: 2350, xRight: 2480 },
+            { xLeft: 4050, xRight: 4180 }
+          ];
+
+          hazardGaps.forEach(gap => {
+            this.add.text(gap.xLeft - 20, 502, '⚠ CHASM', {
+              fontFamily: 'Share Tech Mono',
+              fontSize: '10px',
+              fill: '#ffaa00',
+              fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(60);
+
+            this.add.text(gap.xRight + 20, 502, 'CHASM ⚠', {
+              fontFamily: 'Share Tech Mono',
+              fontSize: '10px',
+              fill: '#ffaa00',
+              fontStyle: 'bold'
+            }).setOrigin(0.5).setDepth(60);
+          });
+
+          // 3. Stealth Crates (Hiding Spots)
+          const cratePositions = [
+            { x: 500, y: 494 },
+            { x: 1720, y: 494 },
+            { x: 1980, y: 318 },
+            { x: 3200, y: 494 },
+            { x: 3640, y: 318 },
+            { x: 4520, y: 494 }
+          ];
+
+          cratePositions.forEach(cPos => {
+            const crate = this.crates.create(cPos.x, cPos.y, 'stealth_crate');
+            crate.setScale(0.85).setDepth(82).refreshBody();
+
+            const prompt = this.add.text(cPos.x, cPos.y - 38, '[HOLD S] HIDE', {
+              fontFamily: 'Share Tech Mono',
+              fontSize: '10px',
+              fill: '#ffb700'
+            }).setOrigin(0.5).setDepth(83);
+          });
+
+          // 4. Ammo Pickups (EMP Dart batteries)
+          const ammoPositions = [
+            { x: 880, y: 235 },
+            { x: 1950, y: 485 },
+            { x: 3120, y: 195 },
+            { x: 3920, y: 225 },
+            { x: 4760, y: 215 }
+          ];
+
+          ammoPositions.forEach(aPos => {
+            const ammo = this.ammoPickups.create(aPos.x, aPos.y, 'ammo_pickup');
+            ammo.setScale(0.8).setDepth(96);
+            ammo.body.allowGravity = false;
+            this.tweens.add({
+              targets: ammo,
+              y: aPos.y - 8,
+              duration: 1000,
+              yoyo: true,
+              repeat: -1,
+              ease: 'Sine.easeInOut'
+            });
+          });
+
+          // 5. Encrypted Data Nodes (10 Collectibles)
+          const dataNodePositions = [
+            { x: 360, y: 380 },
+            { x: 880, y: 210 },
+            { x: 1420, y: 240 },
+            { x: 1720, y: 380 },
+            { x: 2260, y: 210 },
+            { x: 2540, y: 330 },
+            { x: 3120, y: 170 },
+            { x: 3920, y: 200 },
+            { x: 4480, y: 250 },
+            { x: 4760, y: 190 }
+          ];
+
+          dataNodePositions.forEach(pos => {
+            const cube = this.dataNodes.create(pos.x, pos.y, 'data_cube');
+            cube.setScale(0.48).setDepth(95);
+            cube.body.allowGravity = false;
+            this.tweens.add({
+              targets: cube,
+              y: pos.y - 12,
+              duration: 1200 + Math.random() * 400,
+              yoyo: true,
+              repeat: -1,
+              ease: 'Sine.easeInOut'
+            });
+          });
+
+          // 6. Hackable Terminals (3 consoles)
+          const terminalPositions = [
+            { x: 1140, y: 325, id: 'TERM-01', disablesLaser: 0 },
+            { x: 2820, y: 275, id: 'TERM-02', disablesLaser: 1 },
+            { x: 4480, y: 275, id: 'TERM-03', disablesLaser: 2 }
+          ];
+
+          terminalPositions.forEach(tPos => {
+            const term = this.terminals.create(tPos.x, tPos.y, 'terminal');
+            term.setScale(0.8).setDepth(80).refreshBody();
+            term.terminalId = tPos.id;
+            term.disablesLaser = tPos.disablesLaser;
+            term.hacked = false;
+
+            const label = this.add.text(tPos.x, tPos.y - 42, '[E] HACK TERMINAL', {
+              fontFamily: 'Share Tech Mono',
+              fontSize: '11px',
+              fill: '#00f0ff'
+            }).setOrigin(0.5).setDepth(85);
+            term.promptText = label;
+          });
+
+          // 7. Jump Boost Pads
+          const jumpPadPositions = [
+            { x: 940, y: 498 },
+            { x: 2280, y: 498 },
+            { x: 3950, y: 498 },
+            { x: 4880, y: 498 }
+          ];
+
+          jumpPadPositions.forEach(jPos => {
+            const pad = this.jumpPads.create(jPos.x, jPos.y, 'jump_pad');
+            pad.setScale(0.9).setDepth(70).refreshBody();
+          });
+
+          // 8. Pulsing Laser Barriers
+          const laserConfigs = [
+            { x: 1550, y: 450, height: 75 },
+            { x: 2980, y: 450, height: 75 },
+            { x: 4320, y: 450, height: 75 }
+          ];
+
+          laserConfigs.forEach((lPos, idx) => {
+            const postLeft = this.laserPosts.create(lPos.x - 20, lPos.y + 20, 'laser_post').setScale(0.7).refreshBody();
+            const postRight = this.laserPosts.create(lPos.x + 20, lPos.y + 20, 'laser_post').setScale(0.7).refreshBody();
+            this.laserBeams.push({
+              x: lPos.x,
+              y: lPos.y,
+              height: lPos.height,
+              width: 36,
+              active: true,
+              index: idx,
+              phase: idx * 1.5
+            });
+          });
+
+          // 9. Security Enforcers
+          const enforcerSpawns = [
+            { x: 620, y: 496, patrol: 180 },
+            { x: 1850, y: 496, patrol: 220 },
+            { x: 2080, y: 326, patrol: 90 },
+            { x: 3350, y: 496, patrol: 240 },
+            { x: 3850, y: 246, patrol: 90 },
+            { x: 4620, y: 496, patrol: 200 }
+          ];
+
+          enforcerSpawns.forEach(spawn => {
+            const guard = this.physics.add.sprite(spawn.x, spawn.y, 'enforcer');
+            guard.setDepth(92).setScale(0.42);
+            guard.setOrigin(0.5, 1);
+            guard.body.allowGravity = false;
+            guard.body.setSize(80, 220).setOffset(50, 25);
+            guard.anims.play('enforcer-walk');
+
+            this.enforcers.push({
+              sprite: guard,
+              spawnX: spawn.x,
+              patrolRadius: spawn.patrol,
+              direction: 1,
+              speed: 60,
+              state: 'PATROL',
+              stunnedUntil: 0,
+              lastShotTime: 0
+            });
+          });
+
+          // 10. Surveillance Drones
+          const droneSpawns = [
+            { x: 1300, y: 170, rangeY: 40 },
+            { x: 2600, y: 150, rangeY: 50 },
+            { x: 3650, y: 160, rangeY: 40 },
+            { x: 4400, y: 150, rangeY: 50 }
+          ];
+
+          droneSpawns.forEach(dSpawn => {
+            const drone = this.add.image(dSpawn.x, dSpawn.y, 'drone').setScale(0.5).setDepth(94);
+            this.tweens.add({
+              targets: drone,
+              y: dSpawn.y + dSpawn.rangeY,
+              duration: 1800 + Math.random() * 400,
+              yoyo: true,
+              repeat: -1,
+              ease: 'Sine.easeInOut'
+            });
+
+            this.drones.push({
+              sprite: drone,
+              baseX: dSpawn.x,
+              active: true,
+              lastShockTime: 0
+            });
+          });
+        }
+
+        createHUD() {
+          this.hudContainer = this.add.container(0, 0).setScrollFactor(0).setDepth(500);
+
+          const headerBg = this.add.graphics();
+          headerBg.fillStyle(0x0c0812, 0.88);
+          headerBg.fillRect(0, 0, 960, 52);
+          headerBg.lineStyle(1, 0xffb700, 0.4);
+          headerBg.lineBetween(0, 52, 960, 52);
+          this.hudContainer.add(headerBg);
+
+          this.shieldText = this.add.text(20, 8, 'SHIELD: 100%', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '12px',
+            fill: '#ffb700'
+          });
+          this.hudContainer.add(this.shieldText);
+
+          this.shieldBarGfx = this.add.graphics();
+          this.hudContainer.add(this.shieldBarGfx);
+          this.updateShieldBar();
+
+          this.dartText = this.add.text(180, 8, 'EMP DARTS: ⚡⚡⚡ (3/5)', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '12px',
+            fill: '#00ff88',
+            fontStyle: 'bold'
+          });
+          this.hudContainer.add(this.dartText);
+
+          this.intelText = this.add.text(380, 8, 'INTEL: 0% [0/10 DRIVES]', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '12px',
+            fill: '#00ffff'
+          });
+          this.hudContainer.add(this.intelText);
+
+          this.stealthBadge = this.add.text(620, 8, 'STATUS: [GHOST]', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '12px',
+            fill: '#00ff88',
+            fontStyle: 'bold'
+          });
+          this.hudContainer.add(this.stealthBadge);
+
+          this.scoreText = this.add.text(800, 8, 'SCORE: 0', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '12px',
+            fill: '#e8e0d0'
+          });
+          this.hudContainer.add(this.scoreText);
+
+          this.distText = this.add.text(20, 30, 'TARGET: AKIRO PENTHOUSE // DIST: 5.2km', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '11px',
+            fill: '#9a8c9e'
+          });
+          this.hudContainer.add(this.distText);
+
+          this.soundBtnText = this.add.text(800, 30, '🔊 SOUND: ON', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '11px',
+            fill: '#ffb700'
+          }).setInteractive({ useHandCursor: true });
+          this.soundBtnText.on('pointerdown', () => {
+            const isMuted = audio.toggleMute();
+            this.soundBtnText.setText(isMuted ? '🔇 SOUND: OFF' : '🔊 SOUND: ON');
+          });
+          this.hudContainer.add(this.soundBtnText);
+
+          this.actionPrompt = this.add.text(480, 230, '', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '15px',
+            fill: '#ffb700',
+            backgroundColor: 'rgba(12, 8, 18, 0.88)',
+            padding: { x: 12, y: 6 }
+          }).setOrigin(0.5).setScrollFactor(0).setDepth(600).setVisible(false);
+
+          this.hackProgressGfx = this.add.graphics().setScrollFactor(0).setDepth(601);
+        }
+
+        updateShieldBar() {
+          this.shieldBarGfx.clear();
+          const x = 20, y = 24, w = 140, h = 6;
+          this.shieldBarGfx.fillStyle(0x22152b, 1);
+          this.shieldBarGfx.fillRect(x, y, w, h);
+          const pct = Math.max(0, this.shield / 100);
+          const color = pct > 0.5 ? 0xffb700 : (pct > 0.25 ? 0xff8800 : 0xc41e3a);
+          this.shieldBarGfx.fillStyle(color, 1);
+          this.shieldBarGfx.fillRect(x, y, w * pct, h);
+          this.shieldBarGfx.lineStyle(1, 0xffb700, 0.4);
+          this.shieldBarGfx.strokeRect(x, y, w, h);
+        }
+
+        updateDartHUD() {
+          let boltStr = '';
+          for (let i = 0; i < this.dartAmmo; i++) boltStr += '⚡';
+          this.dartText.setText(`EMP DARTS: ${boltStr} (${this.dartAmmo}/${this.maxDartAmmo})`);
+          this.dartText.setColor(this.dartAmmo > 0 ? '#00ff88' : '#c41e3a');
+        }
+
+        showMissionBriefing() {
+          const modalBg = this.add.rectangle(480, 270, 960, 540, 0x050308, 0.85).setScrollFactor(0).setDepth(1000);
+          const card = this.add.rectangle(480, 270, 700, 380, 0x140d1e, 0.95).setScrollFactor(0).setDepth(1001);
+          card.setStrokeStyle(1, 0xffb700, 0.6);
+
+          const title = this.add.text(480, 115, 'DPS CLASSIFIED // MISSION BRIEFING', {
+            fontFamily: 'Cinzel',
+            fontSize: '20px',
+            fontStyle: 'bold',
+            fill: '#ffb700'
+          }).setOrigin(0.5).setScrollFactor(0).setDepth(1002);
+
+          const body = this.add.text(480, 230, 
+            "AGENT: Harper Chandler (DPS Covert Operative)\n" +
+            "OBJECTIVE: Infiltrate Sector 7 in San Diego 2098.\n\n" +
+            "• GOLDEN LEDGES: High-visibility amber catwalks mark interactive climbing paths.\n" +
+            "• COMBAT ALERT: Alerted Enforcers fire blaster carbines & Drones zap shock beams!\n" +
+            "• DOUBLE JUMP [W / SPACE]: Leap high to cross street chasms & climb rooftops.\n" +
+            "• SLIDE TACKLE [S / SHIFT]: Slide into Enforcers to knock them flat and stun them!\n" +
+            "• EMP DART GUN [F / Q]: Fire taser darts to electrocute and disable guards remotely.\n" +
+            "• SHADOW HIDE [HOLD S]: Duck in Shadow Crates to evade passing patrols.", {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '12.5px',
+            fill: '#e8e0d0',
+            align: 'center',
+            lineSpacing: 6
+          }).setOrigin(0.5).setScrollFactor(0).setDepth(1002);
+
+          const launchBtn = this.add.rectangle(480, 375, 240, 40, 0xc41e3a, 1).setScrollFactor(0).setDepth(1002).setInteractive({ useHandCursor: true });
+          const btnText = this.add.text(480, 375, 'START MISSION [SPACE]', {
+            fontFamily: 'Cinzel',
+            fontSize: '13px',
+            fontStyle: 'bold',
+            fill: '#ffffff'
+          }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
+
+          const startCallback = () => {
+            modalBg.destroy();
+            card.destroy();
+            title.destroy();
+            body.destroy();
+            launchBtn.destroy();
+            btnText.destroy();
+            this.missionStarted = true;
+            this.startTime = this.time.now;
+            audio.init();
+            audio.startMusic();
+          };
+
+          launchBtn.on('pointerdown', startCallback);
+          this.input.keyboard.once('keydown-SPACE', startCallback);
+          this.input.keyboard.once('keydown-ENTER', startCallback);
+        }
+
+        fireTaserDart() {
+          if (this.dartAmmo <= 0 || this.time.now - this.lastTaserTime < 400 || this.isHiding) return;
+          this.lastTaserTime = this.time.now;
+          this.dartAmmo--;
+          this.updateDartHUD();
+          audio.playTaserFire();
+
+          const dir = this.player.flipX ? -1 : 1;
+          const dart = this.darts.create(this.player.x + dir * 25, this.player.y - 45, 'emp_dart');
+          dart.setDepth(110).setScale(1.2);
+          dart.body.allowGravity = false;
+          dart.setVelocityX(dir * 650);
+          dart.setFlipX(dir === -1);
+
+          this.sparkEmitter.emitParticleAt(dart.x, dart.y, 8);
+          this.time.delayedCall(1200, () => { if (dart.active) dart.destroy(); });
+        }
+
+        fireEnforcerLaser(guardObj) {
+          if (this.time.now - guardObj.lastShotTime < 1100) return;
+          guardObj.lastShotTime = this.time.now;
+          audio.playBlasterFire();
+
+          const dir = guardObj.direction;
+          const laserGfx = this.make.graphics({ x: 0, y: 0, add: false });
+          laserGfx.fillStyle(0xc41e3a, 1);
+          laserGfx.fillRect(0, 0, 20, 4);
+          laserGfx.fillStyle(0xffffff, 1);
+          laserGfx.fillRect(2, 1, 16, 2);
+          if (!this.textures.exists('red_blaster_bolt')) {
+            laserGfx.generateTexture('red_blaster_bolt', 20, 4);
+          }
+
+          const bolt = this.enforcerLasers.create(guardObj.sprite.x + dir * 30, guardObj.sprite.y - 65, 'red_blaster_bolt');
+          bolt.setDepth(110);
+          bolt.body.allowGravity = false;
+          bolt.setVelocityX(dir * 500);
+
+          this.time.delayedCall(1200, () => { if (bolt.active) bolt.destroy(); });
+        }
+
+        hitByEnforcerLaser(player, bolt) {
+          bolt.destroy();
+          if (!this.isSliding && !this.isHiding) {
+            this.damagePlayer(20, 'BLASTER');
+          }
+        }
+
+        stunEnforcer(guardObj, durationMs = 5000, reason = 'TACKLE') {
+          guardObj.state = 'STUNNED';
+          guardObj.stunnedUntil = this.time.now + durationMs;
+          guardObj.sprite.setVelocityX(0);
+          guardObj.sprite.anims.play('enforcer-shocked', true);
+
+          if (reason === 'TACKLE') {
+            audio.playTackle();
+            this.score += 150 * this.scoreMultiplier;
+          } else {
+            audio.playTaserZap();
+            this.score += 200 * this.scoreMultiplier;
+          }
+          this.scoreText.setText(`SCORE: ${Math.round(this.score)}`);
+
+          this.sparkEmitter.emitParticleAt(guardObj.sprite.x, guardObj.sprite.y - 40, 25);
+
+          this.time.delayedCall(500, () => {
+            if (guardObj.state === 'STUNNED' && guardObj.sprite.active) {
+              guardObj.sprite.anims.play('enforcer-down', true);
+            }
+          });
+
+          const pop = this.add.text(guardObj.sprite.x, guardObj.sprite.y - 80, reason === 'TACKLE' ? '⚡ SLIDE TAKEDOWN! +150' : '⚡ EMP STUNNED! +200', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '13px',
+            fill: '#00ff88',
+            fontStyle: 'bold'
+          }).setOrigin(0.5).setDepth(160);
+
+          this.tweens.add({
+            targets: pop,
+            y: guardObj.sprite.y - 120,
+            alpha: 0,
+            duration: 900,
+            onComplete: () => pop.destroy()
+          });
+        }
+
+        collectAmmo(player, ammo) {
+          audio.playAmmoPickup();
+          this.sparkEmitter.emitParticleAt(ammo.x, ammo.y, 12);
+          ammo.destroy();
+          this.dartAmmo = Math.min(this.maxDartAmmo, this.dartAmmo + 2);
+          this.updateDartHUD();
+
+          const pop = this.add.text(player.x, player.y - 40, '+2 EMP DARTS', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '12px',
+            fill: '#00ff88'
+          }).setOrigin(0.5).setDepth(150);
+          this.tweens.add({
+            targets: pop,
+            y: player.y - 80,
+            alpha: 0,
+            duration: 800,
+            onComplete: () => pop.destroy()
+          });
+        }
+
+        collectDataNode(player, node) {
+          audio.playPickup();
+          this.sparkEmitter.emitParticleAt(node.x, node.y, 16);
+          node.destroy();
+          this.collectedData++;
+          this.score += 150 * this.scoreMultiplier;
+          const syncPct = Math.min(100, Math.round((this.collectedData / this.totalDataNodes) * 100));
+          this.intelText.setText(`INTEL: ${syncPct}% [${this.collectedData}/${this.totalDataNodes} DRIVES]`);
+          this.scoreText.setText(`SCORE: ${Math.round(this.score)}`);
+
+          const pop = this.add.text(player.x, player.y - 40, '+150 INTEL', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '13px',
+            fill: '#ffb700'
+          }).setOrigin(0.5).setDepth(150);
+          this.tweens.add({
+            targets: pop,
+            y: player.y - 80,
+            alpha: 0,
+            duration: 800,
+            onComplete: () => pop.destroy()
+          });
+        }
+
+        triggerJumpPad(player, pad) {
+          if (player.body.velocity.y >= -100) {
+            audio.playBoost();
+            player.setVelocityY(-780);
+            this.jumpsLeft = 2;
+            this.sparkEmitter.emitParticleAt(pad.x, pad.y, 20);
+            this.tweens.add({
+              targets: pad,
+              scaleY: 0.5,
+              duration: 80,
+              yoyo: true
+            });
+          }
+        }
+
+        handlePitFall() {
+          if (this.pitRecovery) return;
+          this.pitRecovery = true;
+          audio.playDamage();
+          this.shield = Math.max(0, this.shield - 15);
+          this.updateShieldBar();
+          this.shieldText.setText(`SHIELD: ${Math.round(this.shield)}%`);
+          this.cameras.main.shake(250, 0.02);
+
+          this.player.setPosition(this.lastSafeGround.x, this.lastSafeGround.y - 25);
+          this.player.setVelocity(0, -360);
+          this.jumpsLeft = 2;
+
+          const pop = this.add.text(this.player.x, this.player.y - 40, '⚠ CHASM DROP // REBOUNDING', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '13px',
+            fill: '#c41e3a',
+            fontStyle: 'bold'
+          }).setOrigin(0.5).setDepth(200);
+
+          this.tweens.add({
+            targets: pop,
+            y: this.player.y - 80,
+            alpha: 0,
+            duration: 1000,
+            onComplete: () => pop.destroy()
+          });
+
+          this.player.setTint(0xc41e3a);
+          this.time.delayedCall(1200, () => {
+            this.player.clearTint();
+            this.pitRecovery = false;
+          });
+
+          if (this.shield <= 0) {
+            this.triggerGameOver();
+          }
+        }
+
+        damagePlayer(amount = 20, reason = 'LASER') {
+          if (this.shieldInvulnerable || this.isHiding) return;
+          audio.playDamage();
+          this.shield = Math.max(0, this.shield - amount);
+          this.updateShieldBar();
+          this.shieldText.setText(`SHIELD: ${Math.round(this.shield)}%`);
+          this.cameras.main.shake(200, 0.015);
+
+          this.player.setTint(0xc41e3a);
+          this.shieldInvulnerable = true;
+          this.time.delayedCall(400, () => {
+            this.player.clearTint();
+            this.shieldInvulnerable = false;
+          });
+
+          if (this.shield <= 0) {
+            this.triggerGameOver();
+          }
+        }
+
+        triggerGameOver() {
+          if (this.gameOver) return;
+          this.gameOver = true;
+          audio.stopMusic();
+          this.player.setVelocity(0);
+          this.player.anims.play('harper-idle');
+
+          const modalEl = document.getElementById('modal-gameover');
+          if (modalEl) {
+            modalEl.style.display = 'flex';
+          }
+        }
+
+        reachGoal() {
+          if (this.missionComplete) return;
+          this.missionComplete = true;
+          audio.stopMusic();
+          audio.playVictory();
+
+          this.player.setVelocity(0);
+          this.player.anims.play('harper-idle');
+
+          const elapsedSec = Math.floor((this.time.now - this.startTime) / 1000);
+          const stealthBonus = this.stealthState === 'GHOST' ? 1000 : (this.stealthState === 'CAUTION' ? 400 : 0);
+          const totalFinalScore = Math.round(this.score + stealthBonus + (this.collectedData === 10 ? 1500 : 500));
+
+          let rank = 'B';
+          if (this.collectedData >= 8 && elapsedSec < 100 && this.stealthState !== 'ALERT') rank = 'S';
+          else if (this.collectedData >= 6) rank = 'A';
+
+          const rankEl = document.getElementById('victory-rank');
+          const statsEl = document.getElementById('victory-stats');
+          const modalEl = document.getElementById('modal-victory');
+
+          if (rankEl) {
+            rankEl.textContent = `EVALUATION: RANK ${rank}`;
+            rankEl.style.color = rank === 'S' ? '#ffd700' : (rank === 'A' ? '#ffb700' : '#c41e3a');
+          }
+          if (statsEl) {
+            statsEl.textContent = 
+              `TIME ELAPSED: ${elapsedSec}s\n` +
+              `INTEL DRIVES RECOVERED: ${this.collectedData} / ${this.totalDataNodes}\n` +
+              `STEALTH RATING: ${this.stealthState} (+${stealthBonus} pts)\n` +
+              `FINAL DECRYPTION SCORE: ${totalFinalScore}\n\n` +
+              `"Harper, you made it. The syndicate files are uploading now." — Akiro`;
+          }
+          if (modalEl) {
+            modalEl.style.display = 'flex';
+          }
+        }
+
+        togglePause() {
+          if (!this.missionStarted || this.missionComplete || this.gameOver) return;
+          if (this.isPaused) {
+            this.isPaused = false;
+            this.pauseModal.destroy();
+            audio.startMusic();
+          } else {
+            this.isPaused = true;
+            audio.stopMusic();
+            this.pauseModal = this.add.container(0, 0).setScrollFactor(0).setDepth(2000);
+            const pBg = this.add.rectangle(480, 270, 960, 540, 0x000000, 0.75);
+            const pText = this.add.text(480, 240, 'TACTICAL PAUSE', {
+              fontFamily: 'Cinzel',
+              fontSize: '32px',
+              fill: '#ffb700'
+            }).setOrigin(0.5);
+            const pSub = this.add.text(480, 290, 'Press P or ESC to Resume // Press R to Restart', {
+              fontFamily: 'Share Tech Mono',
+              fontSize: '14px',
+              fill: '#e8e0d0'
+            }).setOrigin(0.5);
+            this.pauseModal.add([pBg, pText, pSub]);
+          }
+        }
+
+        update(time, delta) {
+          if (!this.missionStarted || this.missionComplete || this.gameOver || this.isPaused) return;
+
+          // Chasm / Pit Fall Check
+          if (this.player.y > 528) {
+            this.handlePitFall();
+            return;
+          }
+
+          const onGround = this.player.body.touching.down || this.player.body.blocked.down;
+          const leftDown = this.cursors.left.isDown || this.keyA.isDown || touchInput.left;
+          const rightDown = this.cursors.right.isDown || this.keyD.isDown || touchInput.right;
+          const jumpPressed = Phaser.Input.Keyboard.JustDown(this.cursors.up) || 
+                              Phaser.Input.Keyboard.JustDown(this.keyW) || 
+                              Phaser.Input.Keyboard.JustDown(this.cursors.space) || 
+                              (touchInput.jump && !this.wasTouchJump);
+          this.wasTouchJump = touchInput.jump;
+
+          const slideDown = this.cursors.down.isDown || this.keyS.isDown || this.keyShift.isDown || touchInput.slide;
+          const hackDown = this.keyE.isDown || touchInput.hack;
+          const taserPressed = Phaser.Input.Keyboard.JustDown(this.keyF) || 
+                               Phaser.Input.Keyboard.JustDown(this.keyQ) || 
+                               (touchInput.taser && !this.wasTouchTaser);
+          this.wasTouchTaser = touchInput.taser;
+
+          // Parallax updates
+          const camX = this.cameras.main.scrollX;
+          this.sky.tilePositionX = camX * 0.1;
+          this.midground.tilePositionX = camX * 0.35;
+
+          const distRemaining = Math.max(0, ((this.goalX - this.player.x) / 1000).toFixed(1));
+          this.distText.setText(`TARGET: AKIRO PENTHOUSE // DIST: ${distRemaining}km`);
+
+          // Taser Dart Fire
+          if (taserPressed) {
+            this.fireTaserDart();
+          }
+
+          // Check nearby stealth crates
+          let nearCrate = null;
+          this.crates.children.iterate(crate => {
+            if (crate) {
+              const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, crate.x, crate.y);
+              if (d < 55) nearCrate = crate;
+            }
+          });
+
+          // Shadow Hiding
+          if (nearCrate && slideDown && onGround && !leftDown && !rightDown && !this.isSliding) {
+            this.isHiding = true;
+            this.player.setVelocityX(0);
+            this.player.anims.play('harper-crouch', true);
+            this.player.setAlpha(0.35);
+            this.stealthBadge.setText('STATUS: [HIDDEN IN SHADOWS]').setColor('#00ffff');
+            this.actionPrompt.setText('CONCEALED IN SHADOWS // RELEASE S TO MOVE');
+            this.actionPrompt.setVisible(true);
+          } else {
+            if (this.isHiding) {
+              this.isHiding = false;
+              this.player.setAlpha(1.0);
+              this.actionPrompt.setVisible(false);
+              this.stealthBadge.setText('STATUS: [GHOST]').setColor('#00ff88');
+            }
+          }
+
+          // Check nearby terminals
+          let nearTerminal = null;
+          this.terminals.children.iterate(term => {
+            if (term && !term.hacked) {
+              const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, term.x, term.y);
+              if (d < 70) nearTerminal = term;
+            }
+          });
+
+          // Hacking Logic
+          if (!this.isHiding && nearTerminal && (hackDown || (slideDown && onGround && !leftDown && !rightDown))) {
+            this.isHacking = true;
+            this.currentTerminal = nearTerminal;
+            this.player.setVelocityX(0);
+            this.player.anims.play('harper-hack', true);
+
+            this.hackProgress += delta / 1200;
+            if (Math.random() < 0.2) audio.playHackStep();
+
+            this.actionPrompt.setText(`DECRYPTING SECURITY CONSOLE... ${Math.min(100, Math.round(this.hackProgress * 100))}%`);
+            this.actionPrompt.setVisible(true);
+
+            this.hackProgressGfx.clear();
+            this.hackProgressGfx.fillStyle(0x0c0812, 0.9);
+            this.hackProgressGfx.fillRect(360, 270, 240, 12);
+            this.hackProgressGfx.fillStyle(0xffb700, 1);
+            this.hackProgressGfx.fillRect(362, 272, 236 * Math.min(1, this.hackProgress), 8);
+
+            if (this.hackProgress >= 1) {
+              audio.playHackComplete();
+              nearTerminal.hacked = true;
+              nearTerminal.promptText.setText('TERMINAL DECRYPTED');
+              nearTerminal.promptText.setColor('#00ff88');
+              this.score += 300 * this.scoreMultiplier;
+              this.scoreText.setText(`SCORE: ${Math.round(this.score)}`);
+
+              if (this.laserBeams[nearTerminal.disablesLaser]) {
+                this.laserBeams[nearTerminal.disablesLaser].active = false;
+              }
+
+              this.isHacking = false;
+              this.hackProgress = 0;
+              this.actionPrompt.setVisible(false);
+              this.hackProgressGfx.clear();
+            }
+          } else {
+            if (this.isHacking) {
+              this.isHacking = false;
+              this.hackProgress = 0;
+              this.actionPrompt.setVisible(false);
+              this.hackProgressGfx.clear();
+            }
+          }
+
+          // Cyber Slide / Dash & Slide Tackle
+          if (!this.isHiding && !this.isHacking) {
+            if (slideDown && onGround && !this.isSliding && time > this.slideCooldown && (leftDown || rightDown || Math.abs(this.player.body.velocity.x) > 40)) {
+              this.isSliding = true;
+              this.slideEndTime = time + 450;
+              this.slideCooldown = time + 600;
+              audio.playSlide();
+              const slideDir = this.player.flipX ? -1 : 1;
+              this.player.setVelocityX(slideDir * 400);
+              this.player.anims.play('harper-slide', true);
+              this.player.body.setSize(70, 90).setOffset(45, 145);
+            }
+
+            if (this.isSliding) {
+              if (time > this.slideEndTime || !onGround) {
+                this.isSliding = false;
+                this.player.body.setSize(70, 190).setOffset(45, 45);
+              } else {
+                this.trailGraphics.fillStyle(0xffb700, 0.18);
+                this.trailGraphics.fillRect(this.player.x - 20, this.player.y - 45, 40, 45);
+                this.time.delayedCall(80, () => this.trailGraphics.clear());
+
+                this.enforcers.forEach(enf => {
+                  if (enf.state !== 'STUNNED') {
+                    const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, enf.sprite.x, enf.sprite.y);
+                    if (dist < 65) {
+                      this.stunEnforcer(enf, 5000, 'TACKLE');
+                    }
+                  }
+                });
+              }
+            }
+
+            // Normal Movement & Double Jump
+            if (!this.isSliding) {
+              const baseSpeed = 270;
+              if (leftDown) {
+                this.player.setVelocityX(-baseSpeed);
+                this.player.setFlipX(true);
+              } else if (rightDown) {
+                this.player.setVelocityX(baseSpeed);
+                this.player.setFlipX(false);
+              } else {
+                this.player.setVelocityX(this.player.body.velocity.x * 0.7);
+                if (Math.abs(this.player.body.velocity.x) < 10) this.player.setVelocityX(0);
+              }
+
+              // Double Jump
+              if (jumpPressed && this.jumpsLeft > 0) {
+                const isDouble = this.jumpsLeft === 1;
+                const jumpVel = isDouble ? -560 : -620;
+                audio.playJump(isDouble);
+                this.player.setVelocityY(jumpVel);
+                this.jumpsLeft--;
+
+                if (isDouble) {
+                  this.sparkEmitter.emitParticleAt(this.player.x, this.player.y - 15, 18);
+                } else {
+                  this.sparkEmitter.emitParticleAt(this.player.x, this.player.y, 6);
+                }
+              }
+
+              if (!this.cursors.up.isDown && !this.keyW.isDown && !this.cursors.space.isDown && !touchInput.jump) {
+                if (this.player.body.velocity.y < -220) {
+                  this.player.setVelocityY(this.player.body.velocity.y * 0.8);
+                }
+              }
+
+              if (onGround) {
+                if (Math.abs(this.player.body.velocity.x) > 20) {
+                  this.player.anims.play('harper-run', true);
+                } else {
+                  this.player.anims.play('harper-idle', true);
+                }
+              } else {
+                if (this.player.body.velocity.y < 0) {
+                  this.player.anims.play('harper-jump', true);
+                } else {
+                  this.player.anims.play('harper-fall', true);
+                }
+              }
+            }
+          }
+
+          // Check EMP Dart hits on Enforcers
+          this.darts.children.iterate(dart => {
+            if (dart && dart.active) {
+              this.enforcers.forEach(enf => {
+                if (enf.state !== 'STUNNED') {
+                  const dist = Phaser.Math.Distance.Between(dart.x, dart.y, enf.sprite.x, enf.sprite.y - 50);
+                  if (dist < 45) {
+                    dart.destroy();
+                    this.stunEnforcer(enf, 5000, 'DART');
+                  }
+                }
+              });
+            }
+          });
+
+          this.updateLaserBeams(time);
+          this.updateEnforcers(time, delta);
+          this.updateDrones(time, delta);
+
+          if (this.alertTimer > 0) {
+            this.alertTimer -= delta;
+            if (this.alertTimer <= 0 && !this.isHiding) {
+              this.stealthState = 'GHOST';
+              audio.alertMode = false;
+              this.stealthBadge.setText('STATUS: [GHOST]').setColor('#00ff88');
+            }
+          }
+        }
+
+        updateLaserBeams(time) {
+          this.laserGraphics.clear();
+          this.laserBeams.forEach(laser => {
+            if (!laser.active) return;
+            const alpha = 0.5 + 0.5 * Math.sin(time * 0.008 + laser.phase);
+            this.laserGraphics.lineStyle(4, 0xc41e3a, alpha);
+            this.laserGraphics.lineBetween(laser.x, laser.y - laser.height, laser.x, laser.y + 20);
+
+            this.laserGraphics.lineStyle(1.5, 0xffffff, alpha);
+            this.laserGraphics.lineBetween(laser.x, laser.y - laser.height, laser.x, laser.y + 20);
+
+            const playerBox = this.player.getBounds();
+            if (laser.x >= playerBox.left && laser.x <= playerBox.right) {
+              if (this.player.y > laser.y - laser.height && this.player.y < laser.y + 30) {
+                if (!this.isSliding && !this.isHiding) {
+                  this.damagePlayer(15, 'LASER');
+                }
+              }
+            }
+          });
+        }
+
+        updateEnforcers(time, delta) {
+          this.visionGraphics.clear();
+          this.fxGraphics.clear();
+
+          this.enforcers.forEach(enf => {
+            const guard = enf.sprite;
+
+            if (enf.state === 'STUNNED') {
+              if (this.time.now > enf.stunnedUntil) {
+                enf.state = 'PATROL';
+                guard.anims.play('enforcer-walk', true);
+              } else {
+                this.fxGraphics.lineStyle(2, 0xffb700, 0.8);
+                this.fxGraphics.strokeCircle(guard.x, guard.y - 15, 20 + Math.random() * 6);
+                this.fxGraphics.fillStyle(0xffb700, 0.5);
+                this.fxGraphics.fillRect(guard.x - 20, guard.y - 45, 40 * ((enf.stunnedUntil - this.time.now) / 5000), 4);
+                return;
+              }
+            }
+
+            const distToPlayer = Phaser.Math.Distance.Between(guard.x, guard.y, this.player.x, this.player.y);
+            const playerInFront = (enf.direction === 1 && this.player.x > guard.x) || (enf.direction === -1 && this.player.x < guard.x);
+            const verticalDiff = Math.abs(this.player.y - guard.y);
+
+            if (enf.state === 'PATROL') {
+              guard.x += enf.direction * enf.speed * (delta / 1000);
+              if (guard.x > enf.spawnX + enf.patrolRadius) {
+                enf.direction = -1;
+                guard.setFlipX(true);
+              } else if (guard.x < enf.spawnX - enf.patrolRadius) {
+                enf.direction = 1;
+                guard.setFlipX(false);
+              }
+            } else if (enf.state === 'ALERT') {
+              const dir = this.player.x > guard.x ? 1 : -1;
+              enf.direction = dir;
+              guard.setFlipX(dir === -1);
+              
+              if (distToPlayer > 220) {
+                guard.x += dir * (enf.speed * 1.4) * (delta / 1000);
+                guard.anims.play('enforcer-walk', true);
+              } else {
+                guard.anims.play('enforcer-alert', true);
+              }
+
+              // Fire weapon if player is visible and not hidden
+              if (!this.isHiding && distToPlayer < 360 && verticalDiff < 75) {
+                this.fireEnforcerLaser(enf);
+              }
+            }
+
+            const eyeY = guard.y - 75;
+            const coneDist = enf.state === 'ALERT' ? 340 : 220;
+            const dir = enf.direction;
+
+            const coneColor = enf.state === 'ALERT' ? 0xc41e3a : 0xffb700;
+            this.visionGraphics.fillStyle(coneColor, 0.15);
+            this.visionGraphics.beginPath();
+            this.visionGraphics.moveTo(guard.x, eyeY);
+            this.visionGraphics.lineTo(guard.x + dir * coneDist, eyeY - 45);
+            this.visionGraphics.lineTo(guard.x + dir * coneDist, eyeY + 45);
+            this.visionGraphics.closePath();
+            this.visionGraphics.fillPath();
+
+            // Guard detection trigger
+            if (playerInFront && distToPlayer < coneDist && verticalDiff < 70) {
+              if (!this.isSliding && !this.isHiding) {
+                if (enf.state !== 'ALERT') {
+                  audio.playAlert();
+                  enf.state = 'ALERT';
+                  this.stealthState = 'ALERT';
+                  audio.alertMode = true;
+                  this.alertTimer = 6000;
+                  this.stealthBadge.setText('STATUS: [ALERT]').setColor('#c41e3a');
+                }
+              }
+            }
+          });
+        }
+
+        updateDrones(time, delta) {
+          this.drones.forEach(d => {
+            const drone = d.sprite;
+            const beamW = 90;
+            const beamH = 340;
+            const droneBottom = drone.y + 20;
+            const isAlerted = (this.stealthState === 'ALERT');
+
+            this.visionGraphics.fillStyle(isAlerted ? 0xc41e3a : 0xffb700, 0.14);
+            this.visionGraphics.beginPath();
+            this.visionGraphics.moveTo(drone.x, droneBottom);
+            this.visionGraphics.lineTo(drone.x - beamW / 2, droneBottom + beamH);
+            this.visionGraphics.lineTo(drone.x + beamW / 2, droneBottom + beamH);
+            this.visionGraphics.closePath();
+            this.visionGraphics.fillPath();
+
+            if (Math.abs(this.player.x - drone.x) < beamW / 2 && this.player.y > droneBottom && this.player.y < droneBottom + beamH + 40) {
+              if (!this.isSliding && !this.isHiding) {
+                if (this.stealthState !== 'ALERT') {
+                  audio.playAlert();
+                  this.stealthState = 'ALERT';
+                  audio.alertMode = true;
+                  this.alertTimer = 5000;
+                  this.stealthBadge.setText('STATUS: [ALERT]').setColor('#c41e3a');
+                }
+
+                // Drone Shock Beam Damage: 10 dmg every 600ms
+                if (this.time.now - d.lastShockTime > 600) {
+                  d.lastShockTime = this.time.now;
+                  this.damagePlayer(10, 'DRONE_ZAP');
+                }
+              }
+            }
+          });
+        }
+      }
+
+      /* ═══════════════════════════════════════════════════════════════
+         GAME LAUNCHER
+         ═══════════════════════════════════════════════════════════════ */
       const config = {
         type: Phaser.AUTO,
-        width: 800,
-        height: 450,
-        parent: "game-container",
+        width: 960,
+        height: 540,
+        parent: 'game-container',
         physics: {
-          default: "arcade",
-          arcade: { gravity: { y: 1200 }, debug: false },
+          default: 'arcade',
+          arcade: { gravity: { y: 1000 }, debug: false }
         },
-        scene: { preload: preload, create: create, update: update },
+        scene: [MainScene]
       };
 
       const game = new Phaser.Game(config);
-      let player,
-        platforms,
-        ledgePlatforms,
-        enemies = [];
-      let points = 0,
-        lastHitTime = 0,
-        pointsText,
-        distanceText;
-      let akiroBuilding,
-        akiroWindow,
-        goalReached = false;
-
-      const playerWalkSpeed = 120;
-      const levelLength = 5000;
-      const levelWorldWidth = 6000;
-      let speedScale = 1;
-
-      function preload() {
-        this.load.image("sky", "assets/layer_sky_3200.png");
-        this.load.image("houses", "assets/layer_midground_1024.png");
-        this.load.image("street", "assets/layer_foreground_1024.png");
-        this.load.spritesheet("harper", "sprites/harper/harper.png", {
-          frameWidth: 242,
-          frameHeight: 367,
-        });
-        this.load.spritesheet(
-          "enforcer",
-          "sprites/others/security-enforcer.png",
-          { frameWidth: 352, frameHeight: 512 },
-        );
-        this.load.image("akiro-window", "assets/akiro-window-128.png");
-        this.load.image("akiro-building", "assets/akiro-building-150.png");
-      }
-
-      function create() {
-        let graphics = this.make.graphics({ x: 0, y: 0, add: false });
-        graphics.fillStyle(0xffffff, 1);
-        graphics.fillRect(0, 0, 32, 32);
-        graphics.generateTexture("ground", 32, 32);
-
-        this.sky = this.add
-          .tileSprite(400, 225, 800, 450, "sky")
-          .setDepth(0)
-          .setScrollFactor(0);
-        this.houses = this.add
-          .tileSprite(400, 320, 1818, 1024, "houses")
-          .setOrigin(0.5, 1)
-          .setDepth(1)
-          .setScale(0.44)
-          .setScrollFactor(0);
-        this.street = this.add
-          .tileSprite(400, 450, 1818, 1024, "street")
-          .setOrigin(0.5, 1)
-          .setDepth(2)
-          .setScale(0.44)
-          .setScrollFactor(0);
-
-        this.physics.world.setBounds(0, 0, levelWorldWidth, 450);
-        this.cameras.main.setBounds(0, 0, levelWorldWidth, 450);
-
-        platforms = this.physics.add.staticGroup();
-        platforms
-          .create(levelWorldWidth / 2, 440, "ground")
-          .setScale(Math.ceil(levelWorldWidth / 32) + 2, 1)
-          .refreshBody()
-          .setVisible(false);
-        ledgePlatforms = this.physics.add.staticGroup();
-
-        player = this.physics.add
-          .sprite(150, 100, "harper")
-          .setDepth(100)
-          .setScale(0.35);
-        player.setOrigin(0.5, 1);
-        player.body.setSize(100, 280).setOffset(71, 85);
-        player.setCollideWorldBounds(true);
-
-        this.cameras.main.startFollow(player, true, 1, 1, -200, 0);
-
-        this.anims.create({
-          key: "run",
-          frames: this.anims.generateFrameNumbers("harper", {
-            start: 8,
-            end: 15,
-          }),
-          frameRate: 8,
-          repeat: -1,
-        });
-        this.anims.create({
-          key: "idle",
-          frames: this.anims.generateFrameNumbers("harper", {
-            start: 0,
-            end: 4,
-          }),
-          frameRate: 6,
-          repeat: -1,
-        });
-        this.anims.create({
-          key: "enforcer-walk",
-          frames: this.anims.generateFrameNumbers("enforcer", {
-            start: 8,
-            end: 15,
-          }),
-          frameRate: 6,
-          repeat: -1,
-        });
-        this.anims.create({
-          key: "enforcer-idle",
-          frames: this.anims.generateFrameNumbers("enforcer", {
-            start: 0,
-            end: 3,
-          }),
-          frameRate: 4,
-          repeat: -1,
-        });
-
-        pointsText = this.add
-          .text(20, 20, "DECRYPTION SCORE: 0", {
-            fontSize: "18px",
-            fill: "#00ff00",
-            fontFamily: "Courier New",
-          })
-          .setDepth(1000)
-          .setScrollFactor(0);
-        distanceText = this.add
-          .text(20, 50, "INTEL SYNC: 0%", {
-            fontSize: "18px",
-            fill: "#00ffff",
-            fontFamily: "Courier New",
-          })
-          .setDepth(1000)
-          .setScrollFactor(0);
-
-        this.physics.add.collider(player, platforms);
-        this.cursors = this.input.keyboard.createCursorKeys();
-
-        spawnEnemy(this, 2000);
-
-        const goalX = levelLength;
-        akiroBuilding = this.add
-          .image(goalX, 424, "akiro-building")
-          .setOrigin(0.5, 1)
-          .setDepth(2.1)
-          .setScale(1.2);
-        let ledge = ledgePlatforms
-          .create(goalX, 280, "ground")
-          .setScale(8, 0.5)
-          .refreshBody()
-          .setVisible(false);
-        ledge.body.checkCollision.down = false;
-        this.physics.add.collider(player, ledgePlatforms);
-        akiroWindow = this.physics.add
-          .sprite(goalX, 180, "akiro-window")
-          .setDepth(2.2)
-          .setScale(0.6);
-        akiroWindow.body.allowGravity = false;
-        this.physics.add.overlap(player, akiroWindow, winLevel, null, this);
-      }
-
-      function spawnEnemy(scene, worldX) {
-        const guard = scene.physics.add
-          .sprite(worldX, 424, "enforcer")
-          .setDepth(150)
-          .setScale(0.25);
-        guard.setOrigin(0.5, 1);
-        guard.body.allowGravity = false;
-        guard.body.setSize(180, 480).setOffset(86, 15);
-        guard.anims.play("enforcer-walk");
-
-        const beam = scene.add.graphics().setDepth(151);
-        const zone = scene.add.rectangle(worldX, 350, 120, 40, 0xff0000, 0);
-        scene.physics.add.existing(zone, true);
-
-        enemies.push({
-          graphic: guard,
-          beam: beam,
-          zone: zone,
-          spawnX: worldX,
-          direction: 1,
-          patrolWidth: 150,
-          pauseUntil: 0,
-        });
-
-        scene.physics.add.overlap(player, zone, () => {
-          if (scene.time.now - lastHitTime > 1000) {
-            points -= 10;
-            lastHitTime = scene.time.now;
-            pointsText.setText(`DECRYPTION SCORE: ${points}`);
-            player.setTint(0xff0000);
-            scene.time.delayedCall(200, () => player.clearTint());
-          }
-        });
-      }
-
-      function update() {
-        if (goalReached) return;
-
-        let targetScale = 2.5;
-        const slowdownDist = 900;
-        const fullSlowDist = 400;
-        enemies.forEach((e) => {
-          const dist = Math.abs(e.graphic.x - player.x);
-          if (dist < slowdownDist) {
-            const t = Math.max(
-              0,
-              (dist - fullSlowDist) / (slowdownDist - fullSlowDist),
-            );
-            targetScale = Math.min(targetScale, 1.0 + t * 1.5);
-          }
-        });
-        speedScale += (targetScale - speedScale) * 0.08;
-
-        if (this.cursors.left.isDown) {
-          player.setVelocityX(-playerWalkSpeed * speedScale);
-          player.setFlipX(true);
-        } else if (this.cursors.right.isDown) {
-          player.setVelocityX(playerWalkSpeed * speedScale);
-          player.setFlipX(false);
-        } else {
-          player.setVelocityX(0);
-        }
-
-        if (this.cursors.up.isDown && player.body.blocked.down) {
-          player.setVelocityY(-600);
-        }
-
-        if (player.body.velocity.x !== 0 && player.body.blocked.down) {
-          player.anims.play("run", true);
-          player.anims.timeScale = speedScale;
-        } else if (player.body.blocked.down) {
-          player.anims.play("idle", true);
-          player.anims.timeScale = 1;
-        }
-
-        let progress = Math.min(
-          100,
-          Math.floor((player.x / levelLength) * 100),
-        );
-        distanceText.setText(`INTEL SYNC: ${progress}%`);
-        // Add this inside your update loop where you update progress
-        if (speedScale < 1.5) {
-          distanceText.setAlpha(0.5 + Math.random() * 0.5); // Flickers when slowed down near guards
-          distanceText.setText(`INTEL SYNC: ${progress}% [INTERFERENCE]`);
-        } else {
-          distanceText.setAlpha(1);
-          distanceText.setText(`INTEL SYNC: ${progress}%`);
-        }
-
-        const camX = this.cameras.main.scrollX;
-        this.sky.tilePositionX = camX * 0.25;
-        this.houses.tilePositionX = camX * 1.9;
-        this.street.tilePositionX = camX * 2.27;
-
-        const now = this.time.now;
-
-        enemies.forEach((e) => {
-          const walkingTowardHarper =
-            e.graphic.x > player.x && e.direction === -1;
-          const guardInternalSpeed = walkingTowardHarper ? 0.6 : 1.6;
-
-          if (e.pauseUntil > 0) {
-            if (now >= e.pauseUntil) {
-              e.direction *= -1;
-              e.pauseUntil = 0;
-              e.graphic.anims.play("enforcer-walk", true);
-            }
-          } else {
-            e.graphic.x += e.direction * guardInternalSpeed;
-            e.graphic.anims.timeScale = walkingTowardHarper ? 0.4 : 1;
-
-            if (
-              e.graphic.x > e.spawnX + e.patrolWidth ||
-              e.graphic.x < e.spawnX - e.patrolWidth
-            ) {
-              e.graphic.x = Math.max(
-                e.spawnX - e.patrolWidth,
-                Math.min(e.graphic.x, e.spawnX + e.patrolWidth),
-              );
-              e.pauseUntil = now + 2000;
-              e.graphic.anims.play("enforcer-idle", true);
-            }
-          }
-
-          e.graphic.setFlipX(e.direction === -1);
-
-          e.beam.clear();
-          e.beam.fillStyle(0xff0000, 0.2);
-          const dir = e.direction;
-          const eyeY = e.graphic.y - 100;
-
-          e.beam.beginPath();
-          e.beam.moveTo(e.graphic.x, eyeY);
-          e.beam.lineTo(e.graphic.x + dir * 220, eyeY + 60);
-          e.beam.lineTo(e.graphic.x + dir * 220, eyeY - 60);
-          e.beam.fillPath();
-
-          e.zone.x = e.graphic.x + dir * 140;
-          e.zone.y = eyeY;
-          e.zone.body.updateFromGameObject();
-        });
-      }
-
-      function winLevel() {
-        goalReached = true;
-        player.setVelocity(0);
-        player.anims.play("idle");
-        this.add
-          .rectangle(400, 225, 800, 450, 0x000000, 0.7)
-          .setDepth(2000)
-          .setScrollFactor(0);
-        this.add
-          .text(400, 180, "MISSION SUCCESS", {
-            fontSize: "42px",
-            fill: "#00ffff",
-            fontFamily: "Courier New",
-          })
-          .setOrigin(0.5)
-          .setDepth(2001)
-          .setScrollFactor(0);
-        this.add
-          .text(400, 300, "Press R to Restart", {
-            fontSize: "18px",
-            fill: "#ffffff",
-          })
-          .setOrigin(0.5)
-          .setDepth(2001)
-          .setScrollFactor(0);
-        this.input.keyboard.once("keydown-R", () => {
-          location.reload();
-        });
-      }
     </script>
   </body>
 </html>
