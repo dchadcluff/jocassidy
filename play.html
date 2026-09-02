@@ -196,6 +196,10 @@
       .html-modal-card.gameover .html-modal-title {
         color: var(--crimson);
       }
+      .html-modal-card.tutorial {
+        border-color: var(--cyan);
+        box-shadow: 0 0 35px rgba(0, 240, 255, 0.4);
+      }
       .html-modal-eval {
         font-family: 'Cinzel', serif;
         font-size: 1.15rem;
@@ -252,6 +256,16 @@
       .cyber-btn.secondary:hover {
         background: rgba(255, 183, 0, 0.15);
         box-shadow: 0 0 15px var(--amber-glow);
+        transform: translateY(-2px);
+      }
+      .cyber-btn.cyan {
+        background: rgba(0, 240, 255, 0.15);
+        border: 1px solid var(--cyan);
+        color: var(--cyan);
+      }
+      .cyber-btn.cyan:hover {
+        background: rgba(0, 240, 255, 0.3);
+        box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
         transform: translateY(-2px);
       }
 
@@ -359,10 +373,10 @@
     <main class="game-wrapper">
       <div class="game-header">
         <div class="game-title-group">
-          <h1>Harper's Run <span>// Operation Dogwood</span></h1>
-          <div class="game-subtag">SAN DIEGO 2098 — SECTOR 7 INFILTRATION</div>
+          <h1 id="header-title">Harper's Run <span id="header-mode">// Operation Dogwood</span></h1>
+          <div id="header-subtag" class="game-subtag">SAN DIEGO 2098 — SECTOR 7 INFILTRATION</div>
         </div>
-        <div class="dps-badge">DPS COVERT OP</div>
+        <div id="header-badge" class="dps-badge">DPS COVERT OP</div>
       </div>
 
       <div id="game-frame">
@@ -378,7 +392,7 @@
           <button id="btn-hack" class="touch-btn touch-action-hack">💻 HACK</button>
         </div>
 
-        <!-- Native HTML Modal: Victory / Extraction -->
+        <!-- Native HTML Modal: Victory / Extraction (Sector 7) -->
         <div id="modal-victory" class="html-modal-overlay">
           <div class="html-modal-card">
             <div class="html-modal-title">MISSION SUCCESS // AKIRO REACHED</div>
@@ -393,6 +407,7 @@
             </div>
             <div class="modal-btn-row">
               <button id="btn-victory-replay" class="cyber-btn primary">PLAY AGAIN [R]</button>
+              <button id="btn-victory-tutorial" class="cyber-btn cyan">PLAY TUTORIAL</button>
               <a href="books.html" class="cyber-btn secondary">READ THE BOOKS</a>
             </div>
           </div>
@@ -408,7 +423,24 @@
             </div>
             <div class="modal-btn-row">
               <button id="btn-gameover-restart" class="cyber-btn primary">RESTART OPERATION [R]</button>
+              <button id="btn-gameover-tutorial" class="cyber-btn cyan">PRACTICE IN TUTORIAL</button>
               <a href="books.html" class="cyber-btn secondary">VISIT ARCHIVES</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Native HTML Modal: Tutorial Complete -->
+        <div id="modal-tutorial-complete" class="html-modal-overlay">
+          <div class="html-modal-card tutorial">
+            <div class="html-modal-title" style="color: #00f0ff;">SIMULATION CERTIFIED // OPERATIVE READY</div>
+            <div class="html-modal-eval" style="color: #00ff88;">DPS PROTOCOLS 100% VALIDATED</div>
+            <div class="html-modal-stats">
+              Agent Harper Chandler, all mobility, stealth, combat, and hacking training parameters are complete.
+              Full operational clearance granted for Sector 7 live infiltration.
+            </div>
+            <div class="modal-btn-row">
+              <button id="btn-tutorial-deploy" class="cyber-btn primary">DEPLOY TO SECTOR 7 [SPACE]</button>
+              <button id="btn-tutorial-replay" class="cyber-btn cyan">REPLAY SIMULATION</button>
             </div>
           </div>
         </div>
@@ -421,11 +453,12 @@
           <div><span class="key-cap">S</span> / <span class="key-cap">SHIFT</span> <strong>Slide Tackle / Shadow Hide</strong></div>
           <div><span class="key-cap">F</span> / <span class="key-cap">Q</span> <strong>EMP Taser Dart</strong></div>
           <div><span class="key-cap">E</span> Hack Terminal</div>
+          <div><span class="key-cap">T</span> Switch Tutorial/Live</div>
           <div><span class="key-cap">M</span> Mute</div>
           <div><span class="key-cap">P</span> Pause</div>
         </div>
         <div class="mission-context">
-          <div><strong>COMBAT STRATEGY:</strong> Alerted Enforcers fire blaster carbines and Drones emit shock beams. Slide tackle or EMP Dart guards before they deplete your cyber shield!</div>
+          <div id="footer-context-text"><strong>COMBAT STRATEGY:</strong> Alerted Enforcers fire blaster carbines and Drones emit shock beams. Slide tackle or EMP Dart guards before they deplete your cyber shield!</div>
         </div>
       </div>
     </main>
@@ -462,9 +495,21 @@
       bindTouch('btn-taser', 'taser');
       bindTouch('btn-hack', 'hack');
 
-      // Hook HTML Modal Button Clicks
+      // Hook HTML Modal Buttons
       document.getElementById('btn-victory-replay')?.addEventListener('click', () => location.reload());
       document.getElementById('btn-gameover-restart')?.addEventListener('click', () => location.reload());
+      document.getElementById('btn-tutorial-replay')?.addEventListener('click', () => {
+        window.activeGameScene?.launchMode(true);
+      });
+      document.getElementById('btn-tutorial-deploy')?.addEventListener('click', () => {
+        window.activeGameScene?.launchMode(false);
+      });
+      document.getElementById('btn-victory-tutorial')?.addEventListener('click', () => {
+        window.activeGameScene?.launchMode(true);
+      });
+      document.getElementById('btn-gameover-tutorial')?.addEventListener('click', () => {
+        window.activeGameScene?.launchMode(true);
+      });
 
       /* ═══════════════════════════════════════════════════════════════
          CYBER AUDIO SYNTHESIZER (Pure Web Audio API)
@@ -643,6 +688,25 @@
             gain.connect(this.ctx.destination);
             osc.start(now);
             osc.stop(now + 0.12);
+          });
+        }
+
+        playObjectiveComplete() {
+          if (this.muted) return;
+          this.init();
+          const notes = [587.33, 739.99, 880.00, 1174.66];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const now = this.ctx.currentTime + idx * 0.05;
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.2);
           });
         }
 
@@ -837,6 +901,11 @@
           super({ key: 'MainScene' });
         }
 
+        init(data) {
+          this.isTutorial = (data && typeof data.isTutorial === 'boolean') ? data.isTutorial : false;
+          window.activeGameScene = this;
+        }
+
         preload() {
           this.load.image('sky', 'assets/sky_seamless.png');
           this.load.image('midground', 'assets/city_midground_seamless.png');
@@ -864,16 +933,22 @@
           });
         }
 
+        launchMode(isTut) {
+          // Hide all HTML modals
+          document.querySelectorAll('.html-modal-overlay').forEach(m => m.style.display = 'none');
+          this.scene.restart({ isTutorial: isTut });
+        }
+
         create() {
-          this.worldWidth = 5800;
+          this.worldWidth = this.isTutorial ? 2500 : 5800;
           this.worldHeight = 540;
-          this.goalX = 5280;
+          this.goalX = this.isTutorial ? 2280 : 5280;
 
           // Game state
           this.score = 0;
           this.scoreMultiplier = 1.0;
           this.collectedData = 0;
-          this.totalDataNodes = 10;
+          this.totalDataNodes = this.isTutorial ? 3 : 10;
           this.shield = 100;
           this.dartAmmo = 3;
           this.maxDartAmmo = 5;
@@ -894,12 +969,47 @@
           this.gameOver = false;
           this.startTime = 0;
 
+          // Tutorial tracking flags
+          this.tutorialStep = 1;
+          this.tutDone = {
+            doubleJump: false,
+            slide: false,
+            hide: false,
+            dart: false,
+            tackle: false,
+            hack: false
+          };
+
+          // Update header tags
+          const hTitle = document.getElementById('header-title');
+          const hMode = document.getElementById('header-mode');
+          const hSubtag = document.getElementById('header-subtag');
+          const hBadge = document.getElementById('header-badge');
+          const fContext = document.getElementById('footer-context-text');
+
+          if (this.isTutorial) {
+            if (hMode) hMode.textContent = '// DPS Virtual Simulation';
+            if (hSubtag) hSubtag.textContent = 'DPS SIMULATION DECK — OPERATIVE TRAINING PROTOCOL';
+            if (hBadge) { hBadge.textContent = 'DPS VR TRAINING'; hBadge.style.borderColor = '#00f0ff'; hBadge.style.color = '#00f0ff'; }
+            if (fContext) fContext.innerHTML = '<strong>TUTORIAL MODE:</strong> Master Double Jumps, Cyber Slides, Shadow Hiding, EMP Darts, and Terminal Decryption before live infiltration.';
+          } else {
+            if (hMode) hMode.textContent = '// Operation Dogwood';
+            if (hSubtag) hSubtag.textContent = 'SAN DIEGO 2098 — SECTOR 7 INFILTRATION';
+            if (hBadge) { hBadge.textContent = 'DPS COVERT OP'; hBadge.style.borderColor = 'var(--crimson)'; hBadge.style.color = 'var(--crimson)'; }
+            if (fContext) fContext.innerHTML = '<strong>COMBAT STRATEGY:</strong> Alerted Enforcers fire blaster carbines and Drones emit shock beams. Slide tackle or EMP Dart guards before they deplete your cyber shield!';
+          }
+
           this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight);
           this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
 
           // Deep Sky & Midground Parallax
           this.sky = this.add.tileSprite(480, 270, 960, 540, 'sky').setScrollFactor(0).setDepth(0);
           this.midground = this.add.tileSprite(480, 310, 1376, 540, 'midground').setOrigin(0.5, 0.5).setScrollFactor(0).setScale(0.8).setDepth(1);
+          
+          // In tutorial mode, tint midground with a digital holographic grid glow
+          if (this.isTutorial) {
+            this.midground.setTint(0x88eeff);
+          }
 
           this.createAnimations();
 
@@ -918,7 +1028,11 @@
           this.drones = [];
           this.laserBeams = [];
 
-          this.buildLevel();
+          if (this.isTutorial) {
+            this.buildTutorialLevel();
+          } else {
+            this.buildLevel();
+          }
 
           // Harper
           this.player = this.physics.add.sprite(180, 420, 'harper');
@@ -946,6 +1060,10 @@
               if (this.jumpsLeft < 2) audio.playLand();
               this.jumpsLeft = 2;
               this.lastSafeGround = { x: this.player.x, y: this.player.y };
+              // Station 1 tutorial check
+              if (this.isTutorial && !this.tutDone.doubleJump && this.player.x > 350 && this.player.y < 380) {
+                this.completeTutorialStep('doubleJump', 'STATION 01 // DOUBLE JUMP VERIFIED');
+              }
             }
           });
 
@@ -965,6 +1083,7 @@
           this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
           this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
           this.keyQ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
+          this.keyT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
           this.keyShift = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
           this.keyM = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
           this.keyP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
@@ -976,6 +1095,9 @@
           });
 
           this.input.keyboard.on('keydown-P', () => this.togglePause());
+          this.input.keyboard.on('keydown-T', () => {
+            this.launchMode(!this.isTutorial);
+          });
           this.input.keyboard.on('keydown-R', () => {
             if (this.gameOver || this.missionComplete) location.reload();
           });
@@ -988,14 +1110,20 @@
 
           this.createParticles();
 
-          // Target Skyscraper
-          this.targetBuilding = this.add.image(this.goalX, 540, 'akiro_tower').setOrigin(0.5, 1).setScale(0.85).setDepth(15);
-          
-          // Goal Balcony Platform & Trigger
-          this.createCatwalk(this.goalX + 60, 210, 260);
-          this.goalBeacon = this.add.rectangle(this.goalX + 60, 160, 80, 100, 0xffb700, 0.25).setDepth(20);
-          this.physics.add.existing(this.goalBeacon, true);
-          this.physics.add.overlap(this.player, this.goalBeacon, this.reachGoal, null, this);
+          // Goal Balcony / Exit Portal
+          if (this.isTutorial) {
+            this.targetBuilding = this.add.image(this.goalX, 540, 'akiro_tower').setOrigin(0.5, 1).setScale(0.7).setDepth(15).setTint(0x88eeff);
+            this.createCatwalk(this.goalX, 360, 220);
+            this.goalBeacon = this.add.rectangle(this.goalX, 300, 80, 100, 0x00f0ff, 0.3).setDepth(20);
+            this.physics.add.existing(this.goalBeacon, true);
+            this.physics.add.overlap(this.player, this.goalBeacon, this.reachGoal, null, this);
+          } else {
+            this.targetBuilding = this.add.image(this.goalX, 540, 'akiro_tower').setOrigin(0.5, 1).setScale(0.85).setDepth(15);
+            this.createCatwalk(this.goalX + 60, 210, 260);
+            this.goalBeacon = this.add.rectangle(this.goalX + 60, 160, 80, 100, 0xffb700, 0.25).setDepth(20);
+            this.physics.add.existing(this.goalBeacon, true);
+            this.physics.add.overlap(this.player, this.goalBeacon, this.reachGoal, null, this);
+          }
 
           this.createHUD();
           this.showMissionBriefing();
@@ -1080,7 +1208,7 @@
 
         createParticles() {
           const sparkGfx = this.make.graphics({ x: 0, y: 0, add: false });
-          sparkGfx.fillStyle(0xffb700, 1);
+          sparkGfx.fillStyle(this.isTutorial ? 0x00f0ff : 0xffb700, 1);
           sparkGfx.fillRect(0, 0, 4, 4);
           sparkGfx.generateTexture('amber_spark', 4, 4);
 
@@ -1113,6 +1241,108 @@
           return ledge;
         }
 
+        buildTutorialLevel() {
+          // Continuous Ground for training deck
+          const groundW = 128;
+          const totalGround = Math.ceil(this.worldWidth / groundW);
+          for (let i = 0; i < totalGround; i++) {
+            const gx = i * groundW + 64;
+            const gp = this.add.image(gx, 524, 'ground_pavement').setDepth(50);
+            this.physics.add.existing(gp, true);
+            gp.body.checkCollision.down = false;
+            gp.body.checkCollision.left = true;
+            gp.body.checkCollision.right = true;
+            gp.body.checkCollision.up = true;
+            this.groundPlatforms.add(gp);
+          }
+
+          // Station 1: Double Jump Catwalk (x: 460, y: 350)
+          this.createCatwalk(460, 350, 240, true);
+          const c1 = this.dataNodes.create(460, 300, 'data_cube');
+          c1.setScale(0.48).setDepth(95); c1.body.allowGravity = false;
+
+          // Station 2: Low Laser Barrier to Slide Under (x: 840)
+          this.laserPosts.create(840 - 20, 470, 'laser_post').setScale(0.7).refreshBody();
+          this.laserPosts.create(840 + 20, 470, 'laser_post').setScale(0.7).refreshBody();
+          this.laserBeams.push({
+            x: 840,
+            y: 450,
+            height: 75,
+            width: 36,
+            active: true,
+            index: 0,
+            phase: 0
+          });
+
+          // Station 3: Shadow Crate & Training Drone (x: 1150)
+          const crate = this.crates.create(1150, 494, 'stealth_crate');
+          crate.setScale(0.85).setDepth(82).refreshBody();
+          const drone = this.add.image(1150, 160, 'drone').setScale(0.5).setDepth(94);
+          this.drones.push({ sprite: drone, baseX: 1150, active: true, lastShockTime: 0 });
+
+          // Station 4: Ammo & Remote Guard (x: 1460, 1640)
+          const ammo = this.ammoPickups.create(1460, 485, 'ammo_pickup').setScale(0.8).setDepth(96);
+          ammo.body.allowGravity = false;
+
+          const guard1 = this.physics.add.sprite(1640, 496, 'enforcer');
+          guard1.setDepth(92).setScale(0.42).setOrigin(0.5, 1);
+          guard1.body.allowGravity = false;
+          guard1.body.setSize(80, 220).setOffset(50, 25);
+          guard1.anims.play('enforcer-idle');
+          this.enforcers.push({
+            sprite: guard1,
+            spawnX: 1640,
+            patrolRadius: 40,
+            direction: -1,
+            speed: 30,
+            state: 'PATROL',
+            stunnedUntil: 0,
+            lastShotTime: 0,
+            isDummy: true
+          });
+
+          // Station 5: Slide Tackle Guard (x: 1860)
+          const guard2 = this.physics.add.sprite(1860, 496, 'enforcer');
+          guard2.setDepth(92).setScale(0.42).setOrigin(0.5, 1);
+          guard2.body.allowGravity = false;
+          guard2.body.setSize(80, 220).setOffset(50, 25);
+          guard2.anims.play('enforcer-idle');
+          this.enforcers.push({
+            sprite: guard2,
+            spawnX: 1860,
+            patrolRadius: 30,
+            direction: -1,
+            speed: 30,
+            state: 'PATROL',
+            stunnedUntil: 0,
+            lastShotTime: 0,
+            isDummy: true
+          });
+
+          // Station 6: Security Terminal (x: 2060) and Exit Barrier (x: 2180)
+          const term = this.terminals.create(2060, 475, 'terminal').setScale(0.8).setDepth(80).refreshBody();
+          term.terminalId = 'VR-GATE';
+          term.disablesLaser = 1;
+          term.hacked = false;
+          term.promptText = this.add.text(2060, 430, '[E] HACK GATE', {
+            fontFamily: 'Share Tech Mono',
+            fontSize: '11px',
+            fill: '#00f0ff'
+          }).setOrigin(0.5).setDepth(85);
+
+          this.laserPosts.create(2180 - 20, 470, 'laser_post').setScale(0.7).refreshBody();
+          this.laserPosts.create(2180 + 20, 470, 'laser_post').setScale(0.7).refreshBody();
+          this.laserBeams.push({
+            x: 2180,
+            y: 450,
+            height: 75,
+            width: 36,
+            active: true,
+            index: 1,
+            phase: 0
+          });
+        }
+
         buildLevel() {
           // 1. Solid Ground Floor
           const groundW = 128;
@@ -1138,23 +1368,23 @@
             { x: 360, y: 430, w: 200 },
             { x: 620, y: 350, w: 260 },
             { x: 880, y: 270, w: 240 },
-            { x: 1140, y: 360, w: 300 }, // Has Terminal 1
+            { x: 1140, y: 360, w: 300 },
             { x: 1420, y: 290, w: 240 },
 
             // Sector 2 (1500 - 3200px)
             { x: 1720, y: 430, w: 220 },
             { x: 1980, y: 340, w: 280 },
-            { x: 2260, y: 260, w: 260 }, // Jump across Gap 1
+            { x: 2260, y: 260, w: 260 },
             { x: 2540, y: 380, w: 260 },
-            { x: 2820, y: 310, w: 320 }, // Has Terminal 2
+            { x: 2820, y: 310, w: 320 },
             { x: 3120, y: 230, w: 260 },
 
             // Sector 3 (3200 - 4600px)
             { x: 3400, y: 430, w: 220 },
             { x: 3640, y: 340, w: 280 },
-            { x: 3920, y: 260, w: 260 }, // High Catwalk over Gap 2
+            { x: 3920, y: 260, w: 260 },
             { x: 4200, y: 360, w: 260 },
-            { x: 4480, y: 310, w: 320 }, // Has Terminal 3
+            { x: 4480, y: 310, w: 320 },
             { x: 4760, y: 250, w: 260 },
 
             // Sector 4 (4600 - 5400px)
@@ -1187,7 +1417,7 @@
             }).setOrigin(0.5).setDepth(60);
           });
 
-          // 3. Stealth Crates (Hiding Spots)
+          // 3. Stealth Crates
           const cratePositions = [
             { x: 500, y: 494 },
             { x: 1720, y: 494 },
@@ -1201,14 +1431,14 @@
             const crate = this.crates.create(cPos.x, cPos.y, 'stealth_crate');
             crate.setScale(0.85).setDepth(82).refreshBody();
 
-            const prompt = this.add.text(cPos.x, cPos.y - 38, '[HOLD S] HIDE', {
+            this.add.text(cPos.x, cPos.y - 38, '[HOLD S] HIDE', {
               fontFamily: 'Share Tech Mono',
               fontSize: '10px',
               fill: '#ffb700'
             }).setOrigin(0.5).setDepth(83);
           });
 
-          // 4. Ammo Pickups (EMP Dart batteries)
+          // 4. Ammo Pickups
           const ammoPositions = [
             { x: 880, y: 235 },
             { x: 1950, y: 485 },
@@ -1231,7 +1461,7 @@
             });
           });
 
-          // 5. Encrypted Data Nodes (10 Collectibles)
+          // 5. Encrypted Data Nodes
           const dataNodePositions = [
             { x: 360, y: 380 },
             { x: 880, y: 210 },
@@ -1259,7 +1489,7 @@
             });
           });
 
-          // 6. Hackable Terminals (3 consoles)
+          // 6. Hackable Terminals
           const terminalPositions = [
             { x: 1140, y: 325, id: 'TERM-01', disablesLaser: 0 },
             { x: 2820, y: 275, id: 'TERM-02', disablesLaser: 1 },
@@ -1302,8 +1532,8 @@
           ];
 
           laserConfigs.forEach((lPos, idx) => {
-            const postLeft = this.laserPosts.create(lPos.x - 20, lPos.y + 20, 'laser_post').setScale(0.7).refreshBody();
-            const postRight = this.laserPosts.create(lPos.x + 20, lPos.y + 20, 'laser_post').setScale(0.7).refreshBody();
+            this.laserPosts.create(lPos.x - 20, lPos.y + 20, 'laser_post').setScale(0.7).refreshBody();
+            this.laserPosts.create(lPos.x + 20, lPos.y + 20, 'laser_post').setScale(0.7).refreshBody();
             this.laserBeams.push({
               x: lPos.x,
               y: lPos.y,
@@ -1379,14 +1609,14 @@
           const headerBg = this.add.graphics();
           headerBg.fillStyle(0x0c0812, 0.88);
           headerBg.fillRect(0, 0, 960, 52);
-          headerBg.lineStyle(1, 0xffb700, 0.4);
+          headerBg.lineStyle(1, this.isTutorial ? 0x00f0ff : 0xffb700, 0.4);
           headerBg.lineBetween(0, 52, 960, 52);
           this.hudContainer.add(headerBg);
 
           this.shieldText = this.add.text(20, 8, 'SHIELD: 100%', {
             fontFamily: 'Share Tech Mono',
             fontSize: '12px',
-            fill: '#ffb700'
+            fill: this.isTutorial ? '#00f0ff' : '#ffb700'
           });
           this.hudContainer.add(this.shieldText);
 
@@ -1402,7 +1632,7 @@
           });
           this.hudContainer.add(this.dartText);
 
-          this.intelText = this.add.text(380, 8, 'INTEL: 0% [0/10 DRIVES]', {
+          this.intelText = this.add.text(380, 8, this.isTutorial ? 'TRAINING DATA: 0/3' : 'INTEL: 0% [0/10 DRIVES]', {
             fontFamily: 'Share Tech Mono',
             fontSize: '12px',
             fill: '#00ffff'
@@ -1424,7 +1654,7 @@
           });
           this.hudContainer.add(this.scoreText);
 
-          this.distText = this.add.text(20, 30, 'TARGET: AKIRO PENTHOUSE // DIST: 5.2km', {
+          this.distText = this.add.text(20, 30, this.isTutorial ? 'TARGET: VR EXTRACTION GATE // DIST: 2.2km' : 'TARGET: AKIRO PENTHOUSE // DIST: 5.2km', {
             fontFamily: 'Share Tech Mono',
             fontSize: '11px',
             fill: '#9a8c9e'
@@ -1434,13 +1664,36 @@
           this.soundBtnText = this.add.text(800, 30, '🔊 SOUND: ON', {
             fontFamily: 'Share Tech Mono',
             fontSize: '11px',
-            fill: '#ffb700'
+            fill: this.isTutorial ? '#00f0ff' : '#ffb700'
           }).setInteractive({ useHandCursor: true });
           this.soundBtnText.on('pointerdown', () => {
             const isMuted = audio.toggleMute();
             this.soundBtnText.setText(isMuted ? '🔇 SOUND: OFF' : '🔊 SOUND: ON');
           });
           this.hudContainer.add(this.soundBtnText);
+
+          // Tutorial Interactive Banner (Floating HUD Card)
+          if (this.isTutorial) {
+            this.tutCardContainer = this.add.container(480, 110).setScrollFactor(0).setDepth(650);
+
+            const cardBg = this.add.rectangle(0, 0, 680, 64, 0x0c0814, 0.95);
+            cardBg.setStrokeStyle(1.5, 0x00f0ff, 0.9);
+
+            this.tutStationTitle = this.add.text(0, -16, 'STATION 01 // AGILITY LEAP (DOUBLE JUMP)', {
+              fontFamily: 'Cinzel',
+              fontSize: '12px',
+              fontStyle: 'bold',
+              fill: '#00f0ff'
+            }).setOrigin(0.5);
+
+            this.tutStationPrompt = this.add.text(0, 8, 'Press [W] or [SPACE] to jump, then press again in mid-air to Double Jump onto the catwalk!', {
+              fontFamily: 'Share Tech Mono',
+              fontSize: '12px',
+              fill: '#e8e0d0'
+            }).setOrigin(0.5);
+
+            this.tutCardContainer.add([cardBg, this.tutStationTitle, this.tutStationPrompt]);
+          }
 
           this.actionPrompt = this.add.text(480, 230, '', {
             fontFamily: 'Share Tech Mono',
@@ -1453,16 +1706,73 @@
           this.hackProgressGfx = this.add.graphics().setScrollFactor(0).setDepth(601);
         }
 
+        updateTutorialGuide(playerX) {
+          if (!this.tutCardContainer) return;
+
+          if (playerX < 600) {
+            this.tutorialStep = 1;
+            this.tutStationTitle.setText(this.tutDone.doubleJump ? 'STATION 01 // DOUBLE JUMP [✓ VERIFIED]' : 'STATION 01 // AGILITY LEAP (DOUBLE JUMP)');
+            this.tutStationTitle.setColor(this.tutDone.doubleJump ? '#00ff88' : '#00f0ff');
+            this.tutStationPrompt.setText('Press [W] or [SPACE] on ground, then press again in mid-air to Double Jump onto the catwalk!');
+          } else if (playerX < 980) {
+            this.tutorialStep = 2;
+            this.tutStationTitle.setText(this.tutDone.slide ? 'STATION 02 // CYBER SLIDE [✓ VERIFIED]' : 'STATION 02 // CYBER SLIDE & DASH');
+            this.tutStationTitle.setColor(this.tutDone.slide ? '#00ff88' : '#00f0ff');
+            this.tutStationPrompt.setText('Press [S] or [SHIFT] while running to cyber slide safely underneath the low laser barrier!');
+          } else if (playerX < 1360) {
+            this.tutorialStep = 3;
+            this.tutStationTitle.setText(this.tutDone.hide ? 'STATION 03 // SHADOW CONCEALMENT [✓ VERIFIED]' : 'STATION 03 // SHADOW INFILTRATION');
+            this.tutStationTitle.setColor(this.tutDone.hide ? '#00ff88' : '#00f0ff');
+            this.tutStationPrompt.setText('Stand in front of the Shadow Crate and hold [S] to become completely invisible to the patrolling drone!');
+          } else if (playerX < 1720) {
+            this.tutorialStep = 4;
+            this.tutStationTitle.setText(this.tutDone.dart ? 'STATION 04 // EMP TASER DART [✓ VERIFIED]' : 'STATION 04 // REMOTE NEUTRALIZATION');
+            this.tutStationTitle.setColor(this.tutDone.dart ? '#00ff88' : '#00f0ff');
+            this.tutStationPrompt.setText('Press [F] or [Q] to fire an EMP Taser Dart and disable the training guard remotely!');
+          } else if (playerX < 1960) {
+            this.tutorialStep = 5;
+            this.tutStationTitle.setText(this.tutDone.tackle ? 'STATION 05 // SLIDE TACKLE [✓ VERIFIED]' : 'STATION 05 // KINETIC TAKEDOWN');
+            this.tutStationTitle.setColor(this.tutDone.tackle ? '#00ff88' : '#00f0ff');
+            this.tutStationPrompt.setText('Slide [S] directly into the training enforcer to perform a kinetic slide tackle!');
+          } else {
+            this.tutorialStep = 6;
+            this.tutStationTitle.setText(this.tutDone.hack ? 'STATION 06 // SYSTEM BREACH [✓ VERIFIED]' : 'STATION 06 // SECURITY CONSOLE INTRUSION');
+            this.tutStationTitle.setColor(this.tutDone.hack ? '#00ff88' : '#00f0ff');
+            this.tutStationPrompt.setText('Stand at the console and hold [E] to decrypt the terminal and unlock the VR exit gate!');
+          }
+        }
+
+        completeTutorialStep(stepName, message) {
+          if (this.tutDone[stepName]) return;
+          this.tutDone[stepName] = true;
+          audio.playObjectiveComplete();
+
+          const pop = this.add.text(this.player.x, this.player.y - 70, message, {
+            fontFamily: 'Cinzel',
+            fontSize: '13px',
+            fontStyle: 'bold',
+            fill: '#00ff88'
+          }).setOrigin(0.5).setDepth(200);
+
+          this.tweens.add({
+            targets: pop,
+            y: this.player.y - 110,
+            alpha: 0,
+            duration: 1200,
+            onComplete: () => pop.destroy()
+          });
+        }
+
         updateShieldBar() {
           this.shieldBarGfx.clear();
           const x = 20, y = 24, w = 140, h = 6;
           this.shieldBarGfx.fillStyle(0x22152b, 1);
           this.shieldBarGfx.fillRect(x, y, w, h);
           const pct = Math.max(0, this.shield / 100);
-          const color = pct > 0.5 ? 0xffb700 : (pct > 0.25 ? 0xff8800 : 0xc41e3a);
+          const color = pct > 0.5 ? (this.isTutorial ? 0x00f0ff : 0xffb700) : (pct > 0.25 ? 0xff8800 : 0xc41e3a);
           this.shieldBarGfx.fillStyle(color, 1);
           this.shieldBarGfx.fillRect(x, y, w * pct, h);
-          this.shieldBarGfx.lineStyle(1, 0xffb700, 0.4);
+          this.shieldBarGfx.lineStyle(1, this.isTutorial ? 0x00f0ff : 0xffb700, 0.4);
           this.shieldBarGfx.strokeRect(x, y, w, h);
         }
 
@@ -1475,25 +1785,36 @@
 
         showMissionBriefing() {
           const modalBg = this.add.rectangle(480, 270, 960, 540, 0x050308, 0.85).setScrollFactor(0).setDepth(1000);
-          const card = this.add.rectangle(480, 270, 700, 380, 0x140d1e, 0.95).setScrollFactor(0).setDepth(1001);
-          card.setStrokeStyle(1, 0xffb700, 0.6);
+          const card = this.add.rectangle(480, 270, 720, 400, 0x140d1e, 0.96).setScrollFactor(0).setDepth(1001);
+          card.setStrokeStyle(1.5, this.isTutorial ? 0x00f0ff : 0xffb700, 0.8);
 
-          const title = this.add.text(480, 115, 'DPS CLASSIFIED // MISSION BRIEFING', {
+          const titleText = this.isTutorial ? 'DPS SIMULATION PROTOCOL // SECTOR 0' : 'DPS CLASSIFIED // MISSION BRIEFING';
+          const title = this.add.text(480, 105, titleText, {
             fontFamily: 'Cinzel',
-            fontSize: '20px',
+            fontSize: '19px',
             fontStyle: 'bold',
-            fill: '#ffb700'
+            fill: this.isTutorial ? '#00f0ff' : '#ffb700'
           }).setOrigin(0.5).setScrollFactor(0).setDepth(1002);
 
-          const body = this.add.text(480, 230, 
-            "AGENT: Harper Chandler (DPS Covert Operative)\n" +
-            "OBJECTIVE: Infiltrate Sector 7 in San Diego 2098.\n\n" +
-            "• GOLDEN LEDGES: High-visibility amber catwalks mark interactive climbing paths.\n" +
-            "• COMBAT ALERT: Alerted Enforcers fire blaster carbines & Drones zap shock beams!\n" +
-            "• DOUBLE JUMP [W / SPACE]: Leap high to cross street chasms & climb rooftops.\n" +
-            "• SLIDE TACKLE [S / SHIFT]: Slide into Enforcers to knock them flat and stun them!\n" +
-            "• EMP DART GUN [F / Q]: Fire taser darts to electrocute and disable guards remotely.\n" +
-            "• SHADOW HIDE [HOLD S]: Duck in Shadow Crates to evade passing patrols.", {
+          const bodyContent = this.isTutorial 
+            ? "AGENT: Harper Chandler (Operative In Training)\n" +
+              "OBJECTIVE: Master covert movement & combat skills before live deployment.\n\n" +
+              "• STATION 01: Double Jump [W / SPACE] onto high catwalks.\n" +
+              "• STATION 02: Cyber Slide [S / SHIFT] under low laser barriers.\n" +
+              "• STATION 03: Hold [S] at Shadow Crates to evade surveillance patrols.\n" +
+              "• STATION 04: Fire EMP Taser Darts [F / Q] to shock guards remotely.\n" +
+              "• STATION 05: Slide Tackle [S] to knock guards onto the floor.\n" +
+              "• STATION 06: Hack Terminal [E] to unlock the VR extraction gate."
+            : "AGENT: Harper Chandler (DPS Covert Operative)\n" +
+              "OBJECTIVE: Infiltrate Sector 7 in San Diego 2098.\n\n" +
+              "• GOLDEN LEDGES: High-visibility amber catwalks mark interactive climbing paths.\n" +
+              "• COMBAT ALERT: Alerted Enforcers fire blaster carbines & Drones zap shock beams!\n" +
+              "• DOUBLE JUMP [W / SPACE]: Leap high to cross street chasms & climb rooftops.\n" +
+              "• SLIDE TACKLE [S / SHIFT]: Slide into Enforcers to knock them flat and stun them!\n" +
+              "• EMP DART GUN [F / Q]: Fire taser darts to electrocute and disable guards remotely.\n" +
+              "• SHADOW HIDE [HOLD S]: Duck in Shadow Crates to evade passing patrols.";
+
+          const body = this.add.text(480, 220, bodyContent, {
             fontFamily: 'Share Tech Mono',
             fontSize: '12.5px',
             fill: '#e8e0d0',
@@ -1501,30 +1822,59 @@
             lineSpacing: 6
           }).setOrigin(0.5).setScrollFactor(0).setDepth(1002);
 
-          const launchBtn = this.add.rectangle(480, 375, 240, 40, 0xc41e3a, 1).setScrollFactor(0).setDepth(1002).setInteractive({ useHandCursor: true });
-          const btnText = this.add.text(480, 375, 'START MISSION [SPACE]', {
+          // Primary Launch Button
+          const btn1X = this.isTutorial ? 480 : 360;
+          const btn1W = this.isTutorial ? 260 : 220;
+          const primaryBtn = this.add.rectangle(btn1X, 380, btn1W, 40, 0xc41e3a, 1).setScrollFactor(0).setDepth(1002).setInteractive({ useHandCursor: true });
+          const primaryText = this.add.text(btn1X, 380, this.isTutorial ? 'START SIMULATION [SPACE]' : 'START MISSION [SPACE]', {
             fontFamily: 'Cinzel',
-            fontSize: '13px',
+            fontSize: '12.5px',
             fontStyle: 'bold',
             fill: '#ffffff'
           }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
 
-          const startCallback = () => {
+          let tutorialBtn = null;
+          let tutorialText = null;
+
+          if (!this.isTutorial) {
+            tutorialBtn = this.add.rectangle(590, 380, 210, 40, 0x1a2638, 1).setScrollFactor(0).setDepth(1002).setInteractive({ useHandCursor: true });
+            tutorialBtn.setStrokeStyle(1, 0x00f0ff, 0.8);
+            tutorialText = this.add.text(590, 380, 'TUTORIAL MODE [T]', {
+              fontFamily: 'Cinzel',
+              fontSize: '12px',
+              fontStyle: 'bold',
+              fill: '#00f0ff'
+            }).setOrigin(0.5).setScrollFactor(0).setDepth(1003);
+          }
+
+          const closeBriefing = (isTut = false) => {
             modalBg.destroy();
             card.destroy();
             title.destroy();
             body.destroy();
-            launchBtn.destroy();
-            btnText.destroy();
+            primaryBtn.destroy();
+            primaryText.destroy();
+            if (tutorialBtn) { tutorialBtn.destroy(); tutorialText.destroy(); }
+            
+            if (isTut !== this.isTutorial) {
+              this.launchMode(isTut);
+              return;
+            }
+
             this.missionStarted = true;
             this.startTime = this.time.now;
             audio.init();
             audio.startMusic();
           };
 
-          launchBtn.on('pointerdown', startCallback);
-          this.input.keyboard.once('keydown-SPACE', startCallback);
-          this.input.keyboard.once('keydown-ENTER', startCallback);
+          primaryBtn.on('pointerdown', () => closeBriefing(this.isTutorial));
+          if (tutorialBtn) {
+            tutorialBtn.on('pointerdown', () => closeBriefing(true));
+          }
+
+          this.input.keyboard.once('keydown-SPACE', () => closeBriefing(this.isTutorial));
+          this.input.keyboard.once('keydown-ENTER', () => closeBriefing(this.isTutorial));
+          this.input.keyboard.once('keydown-T', () => closeBriefing(!this.isTutorial));
         }
 
         fireTaserDart() {
@@ -1584,9 +1934,15 @@
           if (reason === 'TACKLE') {
             audio.playTackle();
             this.score += 150 * this.scoreMultiplier;
+            if (this.isTutorial) {
+              this.completeTutorialStep('tackle', 'STATION 05 // SLIDE TACKLE VERIFIED');
+            }
           } else {
             audio.playTaserZap();
             this.score += 200 * this.scoreMultiplier;
+            if (this.isTutorial) {
+              this.completeTutorialStep('dart', 'STATION 04 // EMP DART VERIFIED');
+            }
           }
           this.scoreText.setText(`SCORE: ${Math.round(this.score)}`);
 
@@ -1642,7 +1998,7 @@
           this.collectedData++;
           this.score += 150 * this.scoreMultiplier;
           const syncPct = Math.min(100, Math.round((this.collectedData / this.totalDataNodes) * 100));
-          this.intelText.setText(`INTEL: ${syncPct}% [${this.collectedData}/${this.totalDataNodes} DRIVES]`);
+          this.intelText.setText(this.isTutorial ? `TRAINING DATA: ${this.collectedData}/${this.totalDataNodes}` : `INTEL: ${syncPct}% [${this.collectedData}/${this.totalDataNodes} DRIVES]`);
           this.scoreText.setText(`SCORE: ${Math.round(this.score)}`);
 
           const pop = this.add.text(player.x, player.y - 40, '+150 INTEL', {
@@ -1755,6 +2111,12 @@
           this.player.setVelocity(0);
           this.player.anims.play('harper-idle');
 
+          if (this.isTutorial) {
+            const tutModal = document.getElementById('modal-tutorial-complete');
+            if (tutModal) tutModal.style.display = 'flex';
+            return;
+          }
+
           const elapsedSec = Math.floor((this.time.now - this.startTime) / 1000);
           const stealthBonus = this.stealthState === 'GHOST' ? 1000 : (this.stealthState === 'CAUTION' ? 400 : 0);
           const totalFinalScore = Math.round(this.score + stealthBonus + (this.collectedData === 10 ? 1500 : 500));
@@ -1795,24 +2157,32 @@
             audio.stopMusic();
             this.pauseModal = this.add.container(0, 0).setScrollFactor(0).setDepth(2000);
             const pBg = this.add.rectangle(480, 270, 960, 540, 0x000000, 0.75);
-            const pText = this.add.text(480, 240, 'TACTICAL PAUSE', {
+            const pText = this.add.text(480, 230, 'TACTICAL PAUSE', {
               fontFamily: 'Cinzel',
-              fontSize: '32px',
+              fontSize: '30px',
               fill: '#ffb700'
             }).setOrigin(0.5);
-            const pSub = this.add.text(480, 290, 'Press P or ESC to Resume // Press R to Restart', {
+            const pSub = this.add.text(480, 280, 'Press P or ESC to Resume // Press R to Restart', {
               fontFamily: 'Share Tech Mono',
               fontSize: '14px',
               fill: '#e8e0d0'
             }).setOrigin(0.5);
-            this.pauseModal.add([pBg, pText, pSub]);
+
+            const modeSwitchText = this.isTutorial ? 'Press T to Switch to Sector 7 (Live Mission)' : 'Press T to Switch to Virtual Training (Tutorial)';
+            const pMode = this.add.text(480, 315, modeSwitchText, {
+              fontFamily: 'Share Tech Mono',
+              fontSize: '13px',
+              fill: '#00f0ff'
+            }).setOrigin(0.5);
+
+            this.pauseModal.add([pBg, pText, pSub, pMode]);
           }
         }
 
         update(time, delta) {
           if (!this.missionStarted || this.missionComplete || this.gameOver || this.isPaused) return;
 
-          // Chasm / Pit Fall Check
+          // Chasm Fall Check
           if (this.player.y > 528) {
             this.handlePitFall();
             return;
@@ -1834,13 +2204,18 @@
                                (touchInput.taser && !this.wasTouchTaser);
           this.wasTouchTaser = touchInput.taser;
 
-          // Parallax updates
+          // Parallax
           const camX = this.cameras.main.scrollX;
           this.sky.tilePositionX = camX * 0.1;
           this.midground.tilePositionX = camX * 0.35;
 
           const distRemaining = Math.max(0, ((this.goalX - this.player.x) / 1000).toFixed(1));
-          this.distText.setText(`TARGET: AKIRO PENTHOUSE // DIST: ${distRemaining}km`);
+          this.distText.setText(this.isTutorial ? `TARGET: VR EXTRACTION GATE // DIST: ${distRemaining}km` : `TARGET: AKIRO PENTHOUSE // DIST: ${distRemaining}km`);
+
+          // Update Tutorial Guide Banner
+          if (this.isTutorial) {
+            this.updateTutorialGuide(this.player.x);
+          }
 
           // Taser Dart Fire
           if (taserPressed) {
@@ -1865,6 +2240,10 @@
             this.stealthBadge.setText('STATUS: [HIDDEN IN SHADOWS]').setColor('#00ffff');
             this.actionPrompt.setText('CONCEALED IN SHADOWS // RELEASE S TO MOVE');
             this.actionPrompt.setVisible(true);
+
+            if (this.isTutorial && !this.tutDone.hide) {
+              this.completeTutorialStep('hide', 'STATION 03 // SHADOW HIDE VERIFIED');
+            }
           } else {
             if (this.isHiding) {
               this.isHiding = false;
@@ -1899,7 +2278,7 @@
             this.hackProgressGfx.clear();
             this.hackProgressGfx.fillStyle(0x0c0812, 0.9);
             this.hackProgressGfx.fillRect(360, 270, 240, 12);
-            this.hackProgressGfx.fillStyle(0xffb700, 1);
+            this.hackProgressGfx.fillStyle(this.isTutorial ? 0x00f0ff : 0xffb700, 1);
             this.hackProgressGfx.fillRect(362, 272, 236 * Math.min(1, this.hackProgress), 8);
 
             if (this.hackProgress >= 1) {
@@ -1912,6 +2291,10 @@
 
               if (this.laserBeams[nearTerminal.disablesLaser]) {
                 this.laserBeams[nearTerminal.disablesLaser].active = false;
+              }
+
+              if (this.isTutorial) {
+                this.completeTutorialStep('hack', 'STATION 06 // SYSTEM BREACH VERIFIED');
               }
 
               this.isHacking = false;
@@ -1939,6 +2322,11 @@
               this.player.setVelocityX(slideDir * 400);
               this.player.anims.play('harper-slide', true);
               this.player.body.setSize(70, 90).setOffset(45, 145);
+
+              // Station 2 tutorial check
+              if (this.isTutorial && !this.tutDone.slide && this.player.x > 750 && this.player.x < 920) {
+                this.completeTutorialStep('slide', 'STATION 02 // CYBER SLIDE VERIFIED');
+              }
             }
 
             if (this.isSliding) {
@@ -1946,7 +2334,7 @@
                 this.isSliding = false;
                 this.player.body.setSize(70, 190).setOffset(45, 45);
               } else {
-                this.trailGraphics.fillStyle(0xffb700, 0.18);
+                this.trailGraphics.fillStyle(this.isTutorial ? 0x00f0ff : 0xffb700, 0.18);
                 this.trailGraphics.fillRect(this.player.x - 20, this.player.y - 45, 40, 45);
                 this.time.delayedCall(80, () => this.trailGraphics.clear());
 
@@ -1961,7 +2349,7 @@
               }
             }
 
-            // Normal Movement & Double Jump
+            // Movement & Double Jump
             if (!this.isSliding) {
               const baseSpeed = 270;
               if (leftDown) {
@@ -2109,7 +2497,7 @@
               }
 
               // Fire weapon if player is visible and not hidden
-              if (!this.isHiding && distToPlayer < 360 && verticalDiff < 75) {
+              if (!this.isHiding && distToPlayer < 360 && verticalDiff < 75 && !enf.isDummy) {
                 this.fireEnforcerLaser(enf);
               }
             }
@@ -2118,7 +2506,7 @@
             const coneDist = enf.state === 'ALERT' ? 340 : 220;
             const dir = enf.direction;
 
-            const coneColor = enf.state === 'ALERT' ? 0xc41e3a : 0xffb700;
+            const coneColor = enf.state === 'ALERT' ? 0xc41e3a : (this.isTutorial ? 0x00f0ff : 0xffb700);
             this.visionGraphics.fillStyle(coneColor, 0.15);
             this.visionGraphics.beginPath();
             this.visionGraphics.moveTo(guard.x, eyeY);
@@ -2151,7 +2539,7 @@
             const droneBottom = drone.y + 20;
             const isAlerted = (this.stealthState === 'ALERT');
 
-            this.visionGraphics.fillStyle(isAlerted ? 0xc41e3a : 0xffb700, 0.14);
+            this.visionGraphics.fillStyle(isAlerted ? 0xc41e3a : (this.isTutorial ? 0x00f0ff : 0xffb700), 0.14);
             this.visionGraphics.beginPath();
             this.visionGraphics.moveTo(drone.x, droneBottom);
             this.visionGraphics.lineTo(drone.x - beamW / 2, droneBottom + beamH);
@@ -2169,8 +2557,8 @@
                   this.stealthBadge.setText('STATUS: [ALERT]').setColor('#c41e3a');
                 }
 
-                // Drone Shock Beam Damage: 10 dmg every 600ms
-                if (this.time.now - d.lastShockTime > 600) {
+                // Drone Shock Beam Damage: 10 dmg every 600ms (in Sector 7 only, not tutorial)
+                if (!this.isTutorial && this.time.now - d.lastShockTime > 600) {
                   d.lastShockTime = this.time.now;
                   this.damagePlayer(10, 'DRONE_ZAP');
                 }
