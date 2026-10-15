@@ -5,6 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Harper's Run: Covert Infiltration — Jo Cassidy</title>
     <meta name="description" content="Play Harper's Run, a cyberpunk stealth runner and platformer based on the YA thriller series by Jo Cassidy." />
+    <link rel="canonical" href="https://jocassidy.com/play" />
+    <meta name="author" content="Jo Cassidy" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://jocassidy.com/play" />
+    <meta property="og:title" content="Harper's Run: Covert Infiltration — Jo Cassidy" />
+    <meta property="og:description" content="Play Harper's Run, a cyberpunk stealth runner and platformer based on the YA thriller series by Jo Cassidy." />
+    <meta property="og:image" content="https://jocassidy.com/assets/preview_thumb.png" />
+    <meta property="og:site_name" content="Jo Cassidy" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://jocassidy.com/play" />
+    <meta name="twitter:title" content="Harper's Run: Covert Infiltration — Jo Cassidy" />
+    <meta name="twitter:description" content="Play Harper's Run, a cyberpunk stealth runner and platformer based on the YA thriller series by Jo Cassidy." />
+    <meta name="twitter:image" content="https://jocassidy.com/assets/preview_thumb.png" />
+
+    <!-- Structured Data (Schema.org JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "VideoGame",
+          "@id": "https://jocassidy.com/play#game",
+          "name": "Harper's Run: Sector 7",
+          "description": "A cyberpunk stealth runner and browser platformer based on the YA vigilante thriller Harper by Jo Cassidy.",
+          "genre": ["Stealth", "Platformer", "Action"],
+          "playMode": "SinglePlayer",
+          "applicationCategory": "Game",
+          "operatingSystem": "Any modern web browser",
+          "url": "https://jocassidy.com/play",
+          "image": "https://jocassidy.com/assets/preview_thumb.png",
+          "author": {
+            "@type": "Person",
+            "name": "Jo Cassidy",
+            "url": "https://jocassidy.com/"
+          }
+        }
+      ]
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
@@ -361,12 +406,12 @@
   </head>
   <body>
     <nav>
-      <a href="index.html" class="nav-brand">Jo Cassidy</a>
+      <a href="/" class="nav-brand">Jo Cassidy</a>
       <ul class="nav-links">
-        <li><a href="index.html#about">About</a></li>
-        <li><a href="index.html#harper">Harper</a></li>
-        <li><a href="books.html">Books</a></li>
-        <li><a href="play.html" class="active">Play Harper</a></li>
+        <li><a href="/#about">About</a></li>
+        <li><a href="/#harper">Harper</a></li>
+        <li><a href="/books">Books</a></li>
+        <li><a href="/play" class="active">Play Harper</a></li>
       </ul>
     </nav>
 
@@ -408,7 +453,7 @@
             <div class="modal-btn-row">
               <button id="btn-victory-replay" class="cyber-btn primary">PLAY AGAIN [R]</button>
               <button id="btn-victory-tutorial" class="cyber-btn cyan">PLAY TUTORIAL</button>
-              <a href="books.html" class="cyber-btn secondary">READ THE BOOKS</a>
+              <a href="/books" class="cyber-btn secondary">READ THE BOOKS</a>
             </div>
           </div>
         </div>
@@ -424,7 +469,7 @@
             <div class="modal-btn-row">
               <button id="btn-gameover-restart" class="cyber-btn primary">RESTART OPERATION [R]</button>
               <button id="btn-gameover-tutorial" class="cyber-btn cyan">PRACTICE IN TUTORIAL</button>
-              <a href="books.html" class="cyber-btn secondary">VISIT ARCHIVES</a>
+              <a href="/books" class="cyber-btn secondary">VISIT ARCHIVES</a>
             </div>
           </div>
         </div>

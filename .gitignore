@@ -2,3 +2,6 @@
 node_modules/
 *.py
 __pycache__/
+
+# Google Search Console credentials
+google-service-account.json

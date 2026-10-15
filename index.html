@@ -5,6 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jo Cassidy — YA Thriller Author</title>
     <meta name="description" content="Jo Cassidy is a YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff." />
+    <link rel="canonical" href="https://jocassidy.com/" />
+    <meta name="author" content="Jo Cassidy" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://jocassidy.com/" />
+    <meta property="og:title" content="Jo Cassidy — YA Thriller Author" />
+    <meta property="og:description" content="Jo Cassidy is a YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff." />
+    <meta property="og:image" content="https://jocassidy.com/assets/preview_thumb.png" />
+    <meta property="og:site_name" content="Jo Cassidy" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://jocassidy.com/" />
+    <meta name="twitter:title" content="Jo Cassidy — YA Thriller Author" />
+    <meta name="twitter:description" content="Jo Cassidy is a YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff." />
+    <meta name="twitter:image" content="https://jocassidy.com/assets/preview_thumb.png" />
+
+    <!-- Structured Data (Schema.org JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://jocassidy.com/#website",
+          "url": "https://jocassidy.com/",
+          "name": "Jo Cassidy",
+          "description": "Official website for YA thriller author Jo Cassidy.",
+          "publisher": {
+            "@id": "https://jocassidy.com/#author"
+          }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://jocassidy.com/#author",
+          "name": "Jo Cassidy",
+          "alternateName": "Sara Jo Cluff",
+          "jobTitle": "Author",
+          "description": "YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff.",
+          "url": "https://jocassidy.com/",
+          "sameAs": [
+            "https://sarajocluff.com",
+            "https://authorjocassidy.com"
+          ]
+        },
+        {
+          "@type": "Book",
+          "name": "Harper",
+          "author": { "@id": "https://jocassidy.com/#author" },
+          "genre": "Vigilante Thriller",
+          "description": "After the war of 2098, sixteen-year-old Harper Chandler works covert missions for Dogwood Protection Services.",
+          "url": "https://jocassidy.com/books",
+          "sameAs": "https://www.amazon.com/Harper-Jo-Cassidy-ebook/dp/B07TN7BF1R/"
+        },
+        {
+          "@type": "Book",
+          "name": "Good Girls Stay Quiet",
+          "author": { "@id": "https://jocassidy.com/#author" },
+          "genre": "Psychological Thriller",
+          "description": "Fifteen-year-old Cora Snow has a secret only her journal knows. When the journal goes missing, she's forced to break every rule she's ever lived by.",
+          "url": "https://jocassidy.com/books",
+          "sameAs": "https://www.amazon.com/Good-Girls-Stay-Quiet-Cassidy-ebook/dp/B07FDZL9MF/"
+        },
+        {
+          "@type": "Book",
+          "name": "Willow Marsh",
+          "author": { "@id": "https://jocassidy.com/#author" },
+          "genre": "Paranormal Thriller",
+          "description": "Tessa tried to contact her dead mother through a séance. Something else answered.",
+          "url": "https://jocassidy.com/books",
+          "sameAs": "https://www.amazon.com/Willow-Marsh-Jo-Cassidy-ebook/dp/B07FK8VMXH/"
+        }
+      ]
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
@@ -539,12 +617,12 @@
 
     <!-- NAV -->
     <nav>
-      <a href="index.html" class="nav-brand">Jo Cassidy</a>
+      <a href="/" class="nav-brand">Jo Cassidy</a>
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
         <li><a href="#harper">Harper</a></li>
-        <li><a href="#books">Books</a></li>
-        <li><a href="play.html">Play</a></li>
+        <li><a href="/books">Books</a></li>
+        <li><a href="/play">Play</a></li>
       </ul>
     </nav>
 
@@ -557,8 +635,8 @@
         Pen name for <a href="https://sarajocluff.com" target="_blank" rel="noopener">Sara Jo Cluff</a>
       </p>
       <div class="hero-cta">
-        <a href="#books" class="btn btn-primary">Browse Books</a>
-        <a href="play.html" class="btn btn-ghost">Play as Harper</a>
+        <a href="/books" class="btn btn-primary">Browse Books</a>
+        <a href="/play" class="btn btn-ghost">Play as Harper</a>
       </div>
       <div class="scroll-hint">
         <span>Scroll</span>
@@ -602,7 +680,7 @@
           <p>Harper is one of Jo's most beloved series — a YA vigilante thriller set in the chaotic United States of 2098, where sixteen-year-old Harper Chandler runs covert missions for Dogwood Protection Services.</p>
           <p>Now you can step into Harper's shoes. Run. Evade. Survive. The streets of San Diego won't patrol themselves.</p>
           <p style="font-size:0.85rem; color:var(--blood); font-style:italic;">⚠ Currently in alpha — very much a work in progress.</p>
-          <a href="play.html" class="btn btn-primary" style="margin-top:8px;">Play Now</a>
+          <a href="/play" class="btn btn-primary" style="margin-top:8px;">Play Now</a>
         </div>
         <div class="harper-visual">
           <div class="game-preview-card">
@@ -611,7 +689,7 @@
             </div>
             <h4>Harper's Run: Sector 7</h4>
             <p>Covert DPS field operative stealth runner</p>
-            <a href="play.html" class="btn btn-primary" style="width:100%; text-align:center; font-size:0.7rem;">Launch Mission →</a>
+            <a href="/play" class="btn btn-primary" style="width:100%; text-align:center; font-size:0.7rem;">Launch Mission →</a>
           </div>
         </div>
       </div>
@@ -644,8 +722,11 @@
         </div>
       </div>
       <div class="books-cta">
-        <p>Find all of Jo's books on Sara Jo Cluff's author page</p>
-        <a href="https://sarajocluff.com" target="_blank" rel="noopener" class="btn btn-primary">Visit sarajocluff.com →</a>
+        <p>Explore detailed book synopsis, excerpts, and store links</p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:12px;">
+          <a href="/books" class="btn btn-primary">View All Books &amp; Buy Links →</a>
+          <a href="https://sarajocluff.com" target="_blank" rel="noopener" class="btn btn-ghost">Visit sarajocluff.com</a>
+        </div>
       </div>
     </section>
 
