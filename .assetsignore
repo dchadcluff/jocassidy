@@ -1,0 +1,7 @@
+.git/
+node_modules/
+.env
+.env.*
+google-service-account.json
+verify-search-console.js
+wrangler.jsonc

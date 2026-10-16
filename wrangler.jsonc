@@ -1,0 +1,17 @@
+{
+  "name": "jocassidy",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "."
+  },
+  "routes": [
+    {
+      "pattern": "jocassidy.com/*",
+      "zone_name": "jocassidy.com"
+    },
+    {
+      "pattern": "www.jocassidy.com/*",
+      "zone_name": "jocassidy.com"
+    }
+  ]
+}

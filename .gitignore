@@ -6,3 +6,6 @@ __pycache__/
 # Google Search Console credentials
 google-service-account.json
 .env
+
+# Cloudflare Wrangler
+.wrangler/
