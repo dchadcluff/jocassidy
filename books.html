@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>Books — Jo Cassidy | YA Thrillers</title>
-    <meta name="description" content="Explore YA thrillers by Jo Cassidy, including Harper, Good Girls Stay Quiet, and Willow Marsh. Psychological, vigilante, and paranormal thriller novels." />
+    <meta name="description" content="Explore YA thrillers by Jo Cassidy, including These Strings That Kill, Harper, Good Girls Stay Quiet, and Willow Marsh. Serial killer, psychological, vigilante, and paranormal thriller novels." />
     <link rel="canonical" href="https://jocassidy.com/books" />
     <meta name="author" content="Jo Cassidy" />
     <meta name="robots" content="index, follow" />
@@ -16,7 +16,7 @@
     <meta property="og:type" content="books.book" />
     <meta property="og:url" content="https://jocassidy.com/books" />
     <meta property="og:title" content="Books by Jo Cassidy — YA Thriller Author" />
-    <meta property="og:description" content="Explore YA thrillers by Jo Cassidy, including Harper, Good Girls Stay Quiet, and Willow Marsh. Psychological, vigilante, and paranormal thriller novels." />
+    <meta property="og:description" content="Explore YA thrillers by Jo Cassidy, including These Strings That Kill, Harper, Good Girls Stay Quiet, and Willow Marsh. Serial killer, psychological, vigilante, and paranormal thriller novels." />
     <meta property="og:image" content="https://jocassidy.com/assets/preview_thumb.png" />
     <meta property="og:site_name" content="Jo Cassidy" />
 
@@ -24,7 +24,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://jocassidy.com/books" />
     <meta name="twitter:title" content="Books by Jo Cassidy — YA Thriller Author" />
-    <meta name="twitter:description" content="Explore YA thrillers by Jo Cassidy, including Harper, Good Girls Stay Quiet, and Willow Marsh. Psychological, vigilante, and paranormal thriller novels." />
+    <meta name="twitter:description" content="Explore YA thrillers by Jo Cassidy, including These Strings That Kill, Harper, Good Girls Stay Quiet, and Willow Marsh. Serial killer, psychological, vigilante, and paranormal thriller novels." />
     <meta name="twitter:image" content="https://jocassidy.com/assets/preview_thumb.png" />
 
     <!-- Google Analytics (GA4) -->
@@ -46,7 +46,7 @@
           "@id": "https://jocassidy.com/books#webpage",
           "url": "https://jocassidy.com/books",
           "name": "Books by Jo Cassidy",
-          "description": "Explore YA thrillers by Jo Cassidy, including Harper, Good Girls Stay Quiet, and Willow Marsh.",
+          "description": "Explore YA thrillers by Jo Cassidy, including These Strings That Kill, Harper, Good Girls Stay Quiet, and Willow Marsh.",
           "isPartOf": {
             "@type": "WebSite",
             "@id": "https://jocassidy.com/#website",
@@ -65,6 +65,15 @@
             "https://sarajocluff.com",
             "https://authorjocassidy.com"
           ]
+        },
+        {
+          "@type": "Book",
+          "name": "These Strings That Kill",
+          "author": { "@id": "https://jocassidy.com/#author" },
+          "genre": "Serial Killer Thriller",
+          "description": "Seamus is seventeen—and he's finally found the one. But she doesn't know it yet, and once he's chosen you, there's no escape.",
+          "url": "https://jocassidy.com/books",
+          "sameAs": "https://www.amazon.com/These-Strings-That-Kill-Cassidy-ebook/dp/B0H6CX7ZMK/"
         },
         {
           "@type": "Book",
@@ -199,6 +208,20 @@
       .genre-section {
         margin-bottom: 80px;
       }
+      .genre-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #9b1a2a33;
+        margin-bottom: 40px;
+        gap: 16px;
+      }
+      .genre-header .genre-label {
+        padding-bottom: 0;
+        border-bottom: none;
+        margin-bottom: 0;
+      }
       .genre-label {
         font-family: 'Cinzel', serif;
         font-size: 0.65rem;
@@ -208,6 +231,24 @@
         padding-bottom: 12px;
         border-bottom: 1px solid #9b1a2a33;
         margin-bottom: 40px;
+      }
+      .badge-new {
+        font-family: 'Cinzel', serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--crimson);
+        padding: 3px 10px;
+        border: 1px solid var(--blood);
+        box-shadow: 0 0 16px rgba(196, 30, 58, 0.35);
+        white-space: nowrap;
+      }
+
+      @media (max-width: 680px) {
+        nav { padding: 14px 20px; }
+        .nav-links { gap: 16px; }
+        .nav-links a { font-size: 0.7rem; letter-spacing: 0.12em; }
       }
 
       .book-entry {
@@ -335,6 +376,7 @@
     <nav>
       <a href="/" class="nav-brand">Jo Cassidy</a>
       <ul class="nav-links">
+        <li><a href="/#new-release">New Release</a></li>
         <li><a href="/#about">About</a></li>
         <li><a href="/#harper">Harper</a></li>
         <li><a href="/books" class="active">Books</a></li>
@@ -350,7 +392,30 @@
     <main class="books-main">
 
       <div class="genre-section">
-        <p class="genre-label">Vigilante Thriller</p>
+        <div class="genre-header">
+          <p class="genre-label">Serial Killer Thriller</p>
+          <span class="badge-new">New Release</span>
+        </div>
+        <div class="book-entry">
+          <div class="book-number">1</div>
+          <div class="book-info">
+            <h2>These Strings That Kill</h2>
+            <p class="book-tagline">Once he's chosen you... there's no escape.</p>
+            <p>Seamus is seventeen—and he's finally found the one. She's beautiful. Untouchable. Everything he's ever wanted. And he knows they belong together.</p>
+            <p>The problem? She doesn't know it yet.</p>
+            <p>But Seamus isn't the kind of boy who gives up. He fixes things. Removes problems. Erases anyone who gets in the way. Because once he's chosen you... there's no escape.</p>
+            <p style="font-size: 0.95rem; color: var(--dim); margin-top: 12px; font-style: italic;">
+              For fans of Natasha Preston, Holly Jackson, and Karen M. McManus.
+            </p>
+            <a href="https://www.amazon.com/These-Strings-That-Kill-Cassidy-ebook/dp/B0H6CX7ZMK/" target="_blank" rel="noopener" class="book-link">Buy on Amazon →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="genre-section">
+        <div class="genre-header">
+          <p class="genre-label">Vigilante Thriller</p>
+        </div>
         <div class="book-entry">
           <div class="book-number">1</div>
           <div class="book-info">
@@ -365,7 +430,9 @@
       </div>
 
       <div class="genre-section">
-        <p class="genre-label">Psychological Thriller</p>
+        <div class="genre-header">
+          <p class="genre-label">Psychological Thriller</p>
+        </div>
         <div class="book-entry">
           <div class="book-number">1</div>
           <div class="book-info">
@@ -380,7 +447,9 @@
       </div>
 
       <div class="genre-section">
-        <p class="genre-label">Paranormal Thriller</p>
+        <div class="genre-header">
+          <p class="genre-label">Paranormal Thriller</p>
+        </div>
         <div class="book-entry">
           <div class="book-number">1</div>
           <div class="book-info">

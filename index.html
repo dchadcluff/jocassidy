@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>Jo Cassidy — YA Thriller Author</title>
-    <meta name="description" content="Jo Cassidy is a YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff." />
+    <meta name="description" content="Jo Cassidy is a YA thriller author writing serial killer, psychological, vigilante, and paranormal thrillers. Pen name for Sara Jo Cluff." />
     <link rel="canonical" href="https://jocassidy.com/" />
     <meta name="author" content="Jo Cassidy" />
     <meta name="robots" content="index, follow" />
@@ -16,7 +16,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://jocassidy.com/" />
     <meta property="og:title" content="Jo Cassidy — YA Thriller Author" />
-    <meta property="og:description" content="Jo Cassidy is a YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff." />
+    <meta property="og:description" content="Jo Cassidy is a YA thriller author writing serial killer, psychological, vigilante, and paranormal thrillers. Pen name for Sara Jo Cluff." />
     <meta property="og:image" content="https://jocassidy.com/assets/preview_thumb.png" />
     <meta property="og:site_name" content="Jo Cassidy" />
 
@@ -24,7 +24,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://jocassidy.com/" />
     <meta name="twitter:title" content="Jo Cassidy — YA Thriller Author" />
-    <meta name="twitter:description" content="Jo Cassidy is a YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff." />
+    <meta name="twitter:description" content="Jo Cassidy is a YA thriller author writing serial killer, psychological, vigilante, and paranormal thrillers. Pen name for Sara Jo Cluff." />
     <meta name="twitter:image" content="https://jocassidy.com/assets/preview_thumb.png" />
 
     <!-- Google Analytics (GA4) -->
@@ -57,12 +57,21 @@
           "name": "Jo Cassidy",
           "alternateName": "Sara Jo Cluff",
           "jobTitle": "Author",
-          "description": "YA thriller author writing paranormal, psychological, and contemporary thrillers. Pen name for Sara Jo Cluff.",
+          "description": "YA thriller author writing serial killer, psychological, vigilante, and contemporary thrillers. Pen name for Sara Jo Cluff.",
           "url": "https://jocassidy.com/",
           "sameAs": [
             "https://sarajocluff.com",
             "https://authorjocassidy.com"
           ]
+        },
+        {
+          "@type": "Book",
+          "name": "These Strings That Kill",
+          "author": { "@id": "https://jocassidy.com/#author" },
+          "genre": "Serial Killer Thriller",
+          "description": "Seamus is seventeen—and he's finally found the one. But she doesn't know it yet, and once he's chosen you, there's no escape.",
+          "url": "https://jocassidy.com/books",
+          "sameAs": "https://www.amazon.com/These-Strings-That-Kill-Cassidy-ebook/dp/B0H6CX7ZMK/"
         },
         {
           "@type": "Book",
@@ -389,6 +398,194 @@
         animation: rotateSlow 30s linear infinite reverse;
       }
 
+      /* ─── HERO ANNOUNCEMENT ───────────────────────── */
+      .hero-announcement-wrap {
+        margin-bottom: 24px;
+        animation: fadeUp 1s ease both;
+      }
+      .hero-announcement {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 16px 6px 8px;
+        background: rgba(155, 26, 42, 0.15);
+        border: 1px solid rgba(196, 30, 58, 0.4);
+        border-radius: 999px;
+        text-decoration: none;
+        transition: all 0.25s ease;
+      }
+      .hero-announcement:hover {
+        background: rgba(196, 30, 58, 0.25);
+        border-color: var(--crimson);
+        box-shadow: 0 0 24px rgba(196, 30, 58, 0.35);
+      }
+      .hero-announcement-tag {
+        font-family: 'Cinzel', serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        background: var(--crimson);
+        color: #fff;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-weight: 600;
+      }
+      .hero-announcement-title {
+        font-family: 'Crimson Pro', Georgia, serif;
+        font-style: italic;
+        font-size: 0.95rem;
+        color: var(--parchment);
+      }
+      .hero-announcement-cta {
+        font-family: 'Cinzel', serif;
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--crimson);
+      }
+
+      /* ─── NEW RELEASE ─────────────────────────────── */
+      .new-release-section {
+        background: linear-gradient(180deg, var(--void) 0%, var(--surface) 50%, var(--dark) 100%);
+        border-top: 1px solid #9b1a2a33;
+        border-bottom: 1px solid #9b1a2a33;
+        position: relative;
+        overflow: hidden;
+      }
+      .new-release-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 70% 50% at 30% 50%, rgba(196, 30, 58, 0.12) 0%, transparent 70%),
+          radial-gradient(ellipse 50% 60% at 80% 60%, rgba(155, 26, 42, 0.08) 0%, transparent 60%);
+        pointer-events: none;
+      }
+      .new-release-inner {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 100px 32px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 64px;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+      }
+      @media (max-width: 800px) {
+        .new-release-inner { grid-template-columns: 1fr; gap: 48px; }
+      }
+      .new-release-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Cinzel', serif;
+        font-size: 0.65rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--crimson);
+        padding: 5px 14px;
+        border: 1px solid var(--blood);
+        margin-bottom: 20px;
+        box-shadow: 0 0 20px rgba(196, 30, 58, 0.35);
+      }
+      .new-release-eyebrow {
+        font-family: 'Cinzel', serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        margin-bottom: 12px;
+      }
+      .new-release-title {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(2rem, 4.5vw, 3.2rem);
+        color: var(--parchment);
+        margin-bottom: 16px;
+        line-height: 1.15;
+        text-shadow: 0 0 40px rgba(155, 26, 42, 0.5);
+      }
+      .new-release-tagline {
+        font-family: 'Crimson Pro', Georgia, serif;
+        font-style: italic;
+        font-size: 1.25rem;
+        color: var(--crimson);
+        margin-bottom: 24px;
+      }
+      .new-release-content p {
+        color: var(--parchment);
+        opacity: 0.85;
+        margin-bottom: 18px;
+        font-size: 1.05rem;
+        line-height: 1.7;
+      }
+      .new-release-hook {
+        font-style: italic;
+        color: var(--dim);
+        border-left: 2px solid var(--crimson);
+        padding-left: 16px;
+        margin: 24px 0 !important;
+      }
+      .new-release-actions {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 32px;
+      }
+      .new-release-card {
+        background: rgba(7, 5, 10, 0.85);
+        border: 1px solid rgba(196, 30, 58, 0.3);
+        padding: 36px 28px;
+        position: relative;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(155, 26, 42, 0.15);
+      }
+      .new-release-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+      }
+      .new-release-card-header {
+        border-bottom: 1px solid rgba(155, 26, 42, 0.2);
+        padding-bottom: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .new-release-card-publisher {
+        font-family: 'Cinzel', serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--dim);
+      }
+      .new-release-card-quote {
+        font-family: 'Crimson Pro', serif;
+        font-style: italic;
+        font-size: 1.15rem;
+        line-height: 1.6;
+        color: var(--parchment);
+        margin-bottom: 24px;
+        position: relative;
+      }
+      .new-release-card-meta {
+        font-family: 'Cinzel', serif;
+        font-size: 0.68rem;
+        letter-spacing: 0.15em;
+        color: var(--dim);
+        line-height: 1.9;
+        text-transform: uppercase;
+        border-top: 1px solid rgba(155, 26, 42, 0.2);
+        padding-top: 16px;
+        margin-bottom: 24px;
+      }
+      .new-release-card-meta span {
+        color: var(--parchment);
+      }
+
       /* ─── HARPER GAME ─────────────────────────────── */
       .harper-section {
         background: var(--dark);
@@ -570,6 +767,42 @@
         transition: opacity 0.3s;
       }
       .book-card:hover .book-card-foot { opacity: 1; }
+      .book-card-link {
+        display: inline-block;
+        margin-top: 18px;
+        font-family: 'Cinzel', serif;
+        font-size: 0.68rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(196, 30, 58, 0.4);
+        padding-bottom: 2px;
+        transition: all 0.2s;
+      }
+      .book-card-link:hover {
+        border-bottom-color: var(--parchment);
+        color: var(--parchment);
+      }
+      .book-card-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-family: 'Cinzel', serif;
+        font-size: 0.55rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        background: var(--crimson);
+        color: #fff;
+        padding: 3px 8px;
+        font-weight: 600;
+        box-shadow: 0 0 12px rgba(196, 30, 58, 0.35);
+      }
+      @media (max-width: 680px) {
+        nav { padding: 14px 20px; }
+        .nav-links { gap: 16px; }
+        .nav-links a { font-size: 0.7rem; letter-spacing: 0.12em; }
+      }
       .books-cta {
         text-align: center;
       }
@@ -631,6 +864,7 @@
     <nav>
       <a href="/" class="nav-brand">Jo Cassidy</a>
       <ul class="nav-links">
+        <li><a href="#new-release">New Release</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#harper">Harper</a></li>
         <li><a href="/books">Books</a></li>
@@ -640,14 +874,22 @@
 
     <!-- HERO -->
     <section class="hero">
+      <div class="hero-announcement-wrap">
+        <a href="#new-release" class="hero-announcement">
+          <span class="hero-announcement-tag">New Release</span>
+          <span class="hero-announcement-title">These Strings That Kill</span>
+          <span class="hero-announcement-cta">Learn More →</span>
+        </a>
+      </div>
       <p class="hero-eyebrow">YA Thriller Author</p>
       <h1 class="hero-title">Jo <span>Cassidy</span></h1>
-      <p class="hero-subtitle">Paranormal &nbsp;·&nbsp; Psychological &nbsp;·&nbsp; Contemporary</p>
+      <p class="hero-subtitle">Serial Killer &nbsp;·&nbsp; Psychological &nbsp;·&nbsp; Vigilante &nbsp;·&nbsp; Paranormal</p>
       <p class="hero-pen-name">
         Pen name for <a href="https://sarajocluff.com" target="_blank" rel="noopener">Sara Jo Cluff</a>
       </p>
       <div class="hero-cta">
-        <a href="/books" class="btn btn-primary">Browse Books</a>
+        <a href="#new-release" class="btn btn-primary">New Release</a>
+        <a href="/books" class="btn btn-ghost">Browse Books</a>
         <a href="/play" class="btn btn-ghost">Play as Harper</a>
       </div>
       <div class="scroll-hint">
@@ -679,6 +921,45 @@
           <div class="sigil">
             <span class="sigil-inner">JC</span>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW RELEASE: THESE STRINGS THAT KILL -->
+    <section id="new-release" class="new-release-section">
+      <div class="new-release-inner">
+        <div class="new-release-content">
+          <div class="new-release-badge">New Release · Out Now</div>
+          <p class="new-release-eyebrow">Serial Killer Thriller</p>
+          <h2 class="new-release-title">These Strings That Kill</h2>
+          <p class="new-release-tagline">&ldquo;Once he's chosen you... there's no escape.&rdquo;</p>
+          <p>Seamus is seventeen—and he's finally found the one. She's beautiful. Untouchable. Everything he's ever wanted. And he knows they belong together.</p>
+          <p>The problem? She doesn't know it yet.</p>
+          <p class="new-release-hook">
+            &ldquo;Seamus isn't the kind of boy who gives up. He fixes things. Removes problems. Erases anyone who gets in the way. Because once he's chosen you... there's no escape.&rdquo;
+          </p>
+          <p style="font-size:0.95rem; color:var(--dim); font-style:italic;">
+            For fans of Natasha Preston, Holly Jackson, and Karen M. McManus.
+          </p>
+          <div class="new-release-actions">
+            <a href="https://www.amazon.com/These-Strings-That-Kill-Cassidy-ebook/dp/B0H6CX7ZMK/" target="_blank" rel="noopener" class="btn btn-primary">Buy on Amazon →</a>
+            <a href="/books" class="btn btn-ghost">Explore All Books</a>
+          </div>
+        </div>
+        <div class="new-release-card">
+          <div class="new-release-card-header">
+            <span class="new-release-card-publisher">Monster Ivy Publishing</span>
+            <span style="font-family:'Cinzel',serif; font-size:0.6rem; color:var(--crimson); letter-spacing:0.2em;">October 2026</span>
+          </div>
+          <div class="new-release-card-quote">
+            &ldquo;He fixes things. Removes problems. Erases anyone who gets in the way. Because once he's chosen you... there's no escape.&rdquo;
+          </div>
+          <div class="new-release-card-meta">
+            <div>Format: <span>Kindle eBook &amp; Paperback</span></div>
+            <div>Author: <span>Jo Cassidy</span></div>
+            <div>Genre: <span>YA Serial Killer Thriller</span></div>
+          </div>
+          <a href="https://www.amazon.com/These-Strings-That-Kill-Cassidy-ebook/dp/B0H6CX7ZMK/" target="_blank" rel="noopener" class="btn btn-primary" style="width:100%; text-align:center;">Order on Amazon →</a>
         </div>
       </div>
     </section>
@@ -715,21 +996,32 @@
       </div>
       <div class="books-grid">
         <div class="book-card">
+          <span class="book-card-badge">New Release</span>
+          <p class="book-genre">Serial Killer Thriller</p>
+          <h4>These Strings That Kill</h4>
+          <p>Seamus is seventeen—and he's finally found the one. Untouchable, beautiful, and unaware of him. But Seamus fixes problems and erases anyone who gets in the way. Because once he's chosen you... there's no escape.</p>
+          <a href="https://www.amazon.com/These-Strings-That-Kill-Cassidy-ebook/dp/B0H6CX7ZMK/" target="_blank" rel="noopener" class="book-card-link">Buy on Amazon →</a>
+          <div class="book-card-foot"></div>
+        </div>
+        <div class="book-card">
           <p class="book-genre">Vigilante Thriller</p>
           <h4>Harper</h4>
           <p>After the war of 2098, sixteen-year-old Harper Chandler works covert missions for Dogwood Protection Services — stopping terrorists before they strike, all while keeping her double life hidden from a boy she can't stop thinking about.</p>
+          <a href="https://www.amazon.com/Harper-Jo-Cassidy-ebook/dp/B07TN7BF1R/" target="_blank" rel="noopener" class="book-card-link">Buy on Amazon →</a>
           <div class="book-card-foot"></div>
         </div>
         <div class="book-card">
           <p class="book-genre">Psychological Thriller</p>
           <h4>Good Girls Stay Quiet</h4>
           <p>Fifteen-year-old Cora Snow has a secret only her journal knows. When the journal goes missing, she's forced to break every rule she's ever lived by — or risk everything she's been surviving for.</p>
+          <a href="https://www.amazon.com/Good-Girls-Stay-Quiet-Cassidy-ebook/dp/B07FDZL9MF/" target="_blank" rel="noopener" class="book-card-link">Buy on Amazon →</a>
           <div class="book-card-foot"></div>
         </div>
         <div class="book-card">
           <p class="book-genre">Paranormal Thriller</p>
           <h4>Willow Marsh</h4>
           <p>Tessa tried to contact her dead mother through a séance. Something else answered. Now she's in a town full of liars, torn between two boys, and losing control of a voice inside her that grows darker by the day.</p>
+          <a href="https://www.amazon.com/Willow-Marsh-Jo-Cassidy-ebook/dp/B07FK8VMXH/" target="_blank" rel="noopener" class="book-card-link">Buy on Amazon →</a>
           <div class="book-card-foot"></div>
         </div>
       </div>
