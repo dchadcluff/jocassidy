@@ -1,8 +1,11 @@
 {
   "name": "jocassidy",
+  "account_id": "c8b51140ae9f3fbfd934a47fb2bae082",
   "compatibility_date": "2026-10-12",
+  "main": "worker.js",
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "html_handling": "auto-trailing-slash"
   },
   "routes": [
     {
